@@ -1,0 +1,42 @@
+<!-- <mat-card> -->
+    <mat-card-content>
+        <mat-expansion-panel 
+            (opened)="panelOpenState = true"
+            (closed)="panelOpenState = false">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    Puzzle {{puzzleNum}}
+                </mat-panel-title>
+                <mat-panel-description>
+                    {{panelOpenState ? 'Collapse...' : 'Expand...'}}
+                </mat-panel-description>
+                </mat-expansion-panel-header>
+            <form>
+                <mat-form-field>
+                    <mat-hint>11 characters max</mat-hint>
+                    <input matInput type="text" placeholder="Line 1" (change)="line1Change($event)"/>
+                </mat-form-field>
+                <br/>
+
+                <mat-form-field>
+                    <mat-hint>13 characters max</mat-hint>
+                    <input matInput type="text" placeholder="Line 2" (change)="line2Change($event)"/>
+                </mat-form-field>
+                <br/>
+
+                <mat-form-field>
+                    <mat-hint>13 characters max</mat-hint>
+                    <input matInput type="text" placeholder="Line 3" (change)="line3Change($event)"/>
+                </mat-form-field>
+                <br/>
+
+                <mat-form-field>
+                    <mat-hint>11 characters max</mat-hint>
+                    <input matInput type="text" placeholder="Line 4" (change)="line4Change($event)"/>
+                </mat-form-field>
+                <br/>
+            </form>
+        </mat-expansion-panel>
+    </mat-card-content>
+
+<!-- </mat-card> -->
