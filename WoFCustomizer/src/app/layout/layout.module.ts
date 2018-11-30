@@ -2,14 +2,14 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayoutComponent } from './layout.component';
 import { MaterialComponentsModule } from '../material-components/material-components.module';
-import { PuzzlesModule } from '../features/puzzles/puzzles.module';
+import { GameModule } from '../features/game/game.module';
 
 @NgModule({
   declarations: [LayoutComponent],
   imports: [
     CommonModule,
     MaterialComponentsModule,
-    PuzzlesModule
+    GameModule
   ],
   exports: [LayoutComponent]
 })

@@ -10,7 +10,7 @@
   </mat-form-field>
 </form>
 <ul>
-  <li *ngFor="let puzzle of category.puzzles; index as i">
+  <li *ngFor="let puzzle of (puzzles$ | async); index as i">
     <wof-puzzle [puzzle]="puzzle" [puzzleNum]="i+1"></wof-puzzle>
   </li>
 </ul>

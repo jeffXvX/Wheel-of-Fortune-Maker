@@ -1,6 +1,7 @@
 import { Puzzle } from "../puzzle/puzzle.model";
 
 export interface Category {
+    id: number,
     name: string;
-    puzzles: Puzzle[];
+    puzzleIds: number[];
 }
