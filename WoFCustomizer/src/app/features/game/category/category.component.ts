@@ -13,11 +13,14 @@ import { Puzzle } from '../puzzle/puzzle.model';
 export class CategoryComponent implements OnInit {
   @Input() category: Category;
   puzzles$: Observable<Puzzle[]>;
+
+  items = new Array(200).fill('AN ITEM');
   
   numPuzzlesToAdd = 1;
   maxPuzzles = 255;
   
-  constructor(private categoryService: CategoryService) { }
+  constructor(
+    private categoryService: CategoryService) { }
 
   ngOnInit() {
     this.puzzles$ = this.categoryService.puzzles$(this.category.id);
@@ -32,6 +35,7 @@ export class CategoryComponent implements OnInit {
   }
 
   addPuzzles() {
+    console.log(`adding ${this.numPuzzlesToAdd} puzzles`);
     this.categoryService.addPuzzles(this.category.id, this.numPuzzlesToAdd);
   }
 

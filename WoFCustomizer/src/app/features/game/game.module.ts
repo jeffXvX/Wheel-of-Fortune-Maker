@@ -7,9 +7,11 @@ import { PuzzleComponent } from './puzzle/puzzle.component';
 import { GameService } from './game.service';
 import { CategoryService } from './category/category.service';
 import { PuzzleService } from './puzzle/puzzle.service';
+import { PuzzlesViewportDirective } from './puzzles-viewport/puzzles-viewport.directive';
+import { PuzzleInputFilterDirective } from './puzzle-input-filter/puzzle-input-filter.directive';
 
 @NgModule({
-  declarations: [GameComponent, CategoryComponent, PuzzleComponent],
+  declarations: [GameComponent, CategoryComponent, PuzzleComponent, PuzzlesViewportDirective, PuzzleInputFilterDirective],
   imports: [
     CommonModule,
     MaterialComponentsModule

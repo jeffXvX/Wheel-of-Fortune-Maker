@@ -13,10 +13,34 @@ export class PuzzleComponent implements OnInit {
   @Input() puzzleNum: number = 0;
 
   panelOpenState = false;
+
+  static ellipsis = '...';
   
   constructor(private puzzleService: PuzzleService) {}
 
   ngOnInit() {}
+
+  /**
+   * Find the first line that isn't empty and return it
+   * to display when the puzzle is collapsed.
+   */
+  firstNonEmptyLine() {    
+      if(this.puzzle.line1.length > 0) {
+        return this.puzzle.line1 + PuzzleComponent.ellipsis;
+      }
+      else if(this.puzzle.line2.length > 0) {
+        return this.puzzle.line2 + PuzzleComponent.ellipsis;
+      }
+      else if(this.puzzle.line3.length > 0) {
+        return this.puzzle.line3 + PuzzleComponent.ellipsis;
+      }
+      else if(this.puzzle.line4.length > 0) {
+        return this.puzzle.line4 + PuzzleComponent.ellipsis;
+      }
+      else {
+        return '[Empty Puzzle]' + PuzzleComponent.ellipsis;
+      }
+  }
 
   line1Change(e) {
     this.puzzleService.setAnswerLine(this.puzzle, 0, e.target.value);

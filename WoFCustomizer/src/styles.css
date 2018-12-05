@@ -4,3 +4,8 @@
 ul {
     list-style: none;
 }
+
+.virtual-scroll {
+    max-height: 100% !important;
+    overflow: inherit !important;
+}

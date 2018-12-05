@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { MatButtonModule, MatFormFieldModule, MatInputModule, MatCardModule, MatExpansionModule } from '@angular/material';
 import { MatTabsModule } from '@angular/material/tabs';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [],
@@ -11,7 +12,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatExpansionModule,
     MatCardModule,
     MatButtonModule,
-    MatTabsModule
+    MatTabsModule,
+    ScrollingModule
   ],
   exports: [
     MatButtonModule,
@@ -20,7 +22,8 @@ import { MatTabsModule } from '@angular/material/tabs';
     MatExpansionModule,
     MatCardModule,
     MatButtonModule,
-    MatTabsModule
+    MatTabsModule,
+    ScrollingModule
   ]
 })
 export class MaterialComponentsModule { }

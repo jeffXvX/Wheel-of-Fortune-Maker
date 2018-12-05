@@ -9,8 +9,32 @@
     <input matInput type="number" min="1" max="255" [value]="numPuzzlesToAdd" (change)="onPuzzlesToAddChange($event)"/>
   </mat-form-field>
 </form>
-<ul>
-  <li *ngFor="let puzzle of (puzzles$ | async); index as i">
-    <wof-puzzle [puzzle]="puzzle" [puzzleNum]="i+1"></wof-puzzle>
-  </li>
-</ul>
+
+<!--
+The item size is set to 1 and the style set to 500px here
+because otherwise the viewport does not show properly.
+
+Somewhere in the tree css properties make the scroll port
+never enlarge even as content is added otherwise.
+
+These numbers are relatively arbitrary but they provide the
+deisred functionality while not requiring me to lose my 
+sanity by solving built in css deficiencies in material.
+
+The 'autosize' directive is currently in experiemental so 
+I'm not using it but when it enters production ready state
+switching to autosize might solve the issues without hacking
+in these hard coded fixes.
+
+For now this works well enough for the requirements.
+-->
+<cdk-virtual-scroll-viewport 
+  itemSize="1"
+  style="height:500px">
+  <ul >
+    <li *cdkVirtualFor="let puzzle of puzzles$ | async; let i = index" >
+      <wof-puzzle [puzzle]="puzzle" [puzzleNum]="i+1"></wof-puzzle>
+    </li>
+  </ul>
+</cdk-virtual-scroll-viewport>
+
