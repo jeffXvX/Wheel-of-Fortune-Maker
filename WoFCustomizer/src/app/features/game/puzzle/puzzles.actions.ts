@@ -8,6 +8,7 @@ export class AddPuzzles {
 export class SetPuzzleAnswerLine {
     static type = "[Puzzles] Set Answer Line";
     constructor(
+        public catId: number,
         public puzzle: Puzzle, 
         public line: number, 
         public answer: string) {}    

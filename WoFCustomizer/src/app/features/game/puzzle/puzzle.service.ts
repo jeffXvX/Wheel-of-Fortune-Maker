@@ -8,7 +8,7 @@ export class PuzzleService {
 
   constructor(private store: Store) { }
 
-  setAnswerLine(puzzle: Puzzle, line: number, answer: string) {
-    this.store.dispatch(new SetPuzzleAnswerLine(puzzle, line, answer));
+  setAnswerLine(categoryId: number, puzzle: Puzzle, line: number, answer: string) {
+    this.store.dispatch(new SetPuzzleAnswerLine(categoryId, puzzle, line, answer));
   }  
 }

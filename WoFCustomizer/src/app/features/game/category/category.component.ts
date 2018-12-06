@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
-import { Category } from './category.model';
+import { Category, maxPuzzlesPerCategory } from './category.model';
 import { CategoryService } from './category.service';
 import { Observable } from 'rxjs';
 import { Puzzle } from '../puzzle/puzzle.model';
@@ -13,17 +13,17 @@ import { Puzzle } from '../puzzle/puzzle.model';
 export class CategoryComponent implements OnInit {
   @Input() category: Category;
   puzzles$: Observable<Puzzle[]>;
+  numPuzzles$: Observable<number>;
 
-  items = new Array(200).fill('AN ITEM');
-  
   numPuzzlesToAdd = 1;
-  maxPuzzles = 255;
+  maxPuzzles = maxPuzzlesPerCategory;
   
   constructor(
     private categoryService: CategoryService) { }
 
   ngOnInit() {
     this.puzzles$ = this.categoryService.puzzles$(this.category.id);
+    this.numPuzzles$ = this.categoryService.numPuzzles$(this.category.id);
   }
 
   onPuzzlesToAddChange(e) {
@@ -34,8 +34,14 @@ export class CategoryComponent implements OnInit {
     this.categoryService.changeCategoryName(this.category, e.target.value);
   }
 
+  /**
+   * The max number of puzzles to add should probably be enforced
+   * by the store but for the moment I'll just enforce it here.
+   * 
+   * It's not completely optimal but can be revisited in the future
+   * if necessary.
+   */
   addPuzzles() {
-    console.log(`adding ${this.numPuzzlesToAdd} puzzles`);
     this.categoryService.addPuzzles(this.category.id, this.numPuzzlesToAdd);
   }
 

@@ -1,17 +1,18 @@
 <form>
-    <mat-form-field>
-        <mat-hint>7 characters max</mat-hint>
-        <input matInput type="text" placeholder="Category Name" [value]="category.name" (change)="onNameChange($event)"/>
-    </mat-form-field>
-    <button mat-button mat-stroked-button type="button" (click)="addPuzzles()">Add Puzzle(s)</button>
-    <mat-form-field>
-        <mat-hint>Number of Puzzles to Add</mat-hint>
+  <mat-form-field>
+      <mat-hint>7 characters max</mat-hint>
+      <input matInput type="text" placeholder="Category Name" [value]="category.name" (change)="onNameChange($event)"/>
+  </mat-form-field>
+  <button mat-button mat-stroked-button type="button" (click)="addPuzzles()">Add Puzzle(s)</button>
+  <mat-form-field>
+    <mat-hint>Number of Puzzles to Add</mat-hint>
     <input matInput type="number" min="1" max="255" [value]="numPuzzlesToAdd" (change)="onPuzzlesToAddChange($event)"/>
   </mat-form-field>
+  <p>{{numPuzzles$ | async}} / {{maxPuzzles}}</p>
 </form>
 
 <!--
-The item size is set to 1 and the style set to 500px here
+The item size is set to 10 and the style set to 500px here
 because otherwise the viewport does not show properly.
 
 Somewhere in the tree css properties make the scroll port
@@ -29,11 +30,15 @@ in these hard coded fixes.
 For now this works well enough for the requirements.
 -->
 <cdk-virtual-scroll-viewport 
-  itemSize="1"
+  itemSize="10"
   style="height:500px">
   <ul >
     <li *cdkVirtualFor="let puzzle of puzzles$ | async; let i = index" >
-      <wof-puzzle [puzzle]="puzzle" [puzzleNum]="i+1"></wof-puzzle>
+      <wof-puzzle 
+        [puzzle]="puzzle" 
+        [puzzleNum]="i+1" 
+        [categoryId]="category.id">
+      </wof-puzzle>
     </li>
   </ul>
 </cdk-virtual-scroll-viewport>

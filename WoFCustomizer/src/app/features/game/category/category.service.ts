@@ -29,4 +29,9 @@ export class CategoryService {
     return this.store.select(PuzzlesState.puzzles)
       .pipe(map(puzzlesFilterFn=>puzzlesFilterFn(catId)));
   }
+
+  numPuzzles$(catId: number) {
+    return this.store.select(PuzzlesState.numPuzzles)
+      .pipe(map(puzzlesFilterFn=>puzzlesFilterFn(catId)));
+  }
 }

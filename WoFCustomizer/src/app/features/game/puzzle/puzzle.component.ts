@@ -11,6 +11,7 @@ import { PuzzleService } from './puzzle.service';
 export class PuzzleComponent implements OnInit {
   @Input() puzzle: Puzzle;
   @Input() puzzleNum: number = 0;
+  @Input() categoryId: number;
 
   panelOpenState = false;
 
@@ -43,23 +44,35 @@ export class PuzzleComponent implements OnInit {
   }
 
   line1Change(e) {
-    this.puzzleService.setAnswerLine(this.puzzle, 0, e.target.value);
-    //this.puzzle.line1 = e.target.value;
+    this.puzzleService.setAnswerLine(
+      this.categoryId,
+      this.puzzle, 
+      0, 
+      e.target.value.toUpperCase());
   }
 
   line2Change(e) {
-    this.puzzleService.setAnswerLine(this.puzzle, 1, e.target.value);
-    //this.puzzle.line2 = e.target.value;
+    this.puzzleService.setAnswerLine(
+      this.categoryId,
+      this.puzzle, 
+      1, 
+      e.target.value.toUpperCase());
   }
 
   line3Change(e) {
-    this.puzzleService.setAnswerLine(this.puzzle, 2, e.target.value);
-    //this.puzzle.line3 = e.target.value;
+    this.puzzleService.setAnswerLine(
+      this.categoryId,
+      this.puzzle, 
+      2, 
+      e.target.value.toUpperCase());
   }
 
   line4Change(e) {
-    this.puzzleService.setAnswerLine(this.puzzle, 3, e.target.value);
-    //this.puzzle.line4 = e.target.value;
+    this.puzzleService.setAnswerLine(
+      this.categoryId,
+      this.puzzle, 
+      3, 
+      e.target.value.toUpperCase());
   }
 
 }

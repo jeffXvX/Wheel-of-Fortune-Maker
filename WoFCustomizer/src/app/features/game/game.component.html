@@ -1,8 +1,9 @@
+<div>
+  <mat-progress-bar mode="determinate" [value]="puzzlesProgress$ | async"></mat-progress-bar>
+  {{totalPuzzles$|async}} of {{puzzlesRequired}} puzzles
+</div>
 <mat-tab-group>  
   <ng-container *ngFor="let category of (categories$ | async)">
-  <!--
-  <ng-container *ngFor="let category of puzzles.categories">
-  -->
     <mat-tab [label]="category.name"> 
       <wof-category [category]="category">
       </wof-category> 

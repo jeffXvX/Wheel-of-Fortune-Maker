@@ -1,8 +1,9 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { Game } from './game.model';
+import { Game, puzzlesRequired } from './game.model';
 import { GameService } from './game.service';
 import { Observable } from 'rxjs';
 import { Category } from './category/category.model';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'wof-game',
@@ -13,10 +14,17 @@ import { Category } from './category/category.model';
 export class GameComponent implements OnInit {
   game$: Observable<Game>;
   categories$: Observable<Category[]>;
+  totalPuzzles$: Observable<number>;
+  puzzlesProgress$: Observable<number>;
+
+  puzzlesRequired = puzzlesRequired;
 
   constructor(private gameService: GameService) { 
     this.game$ = this.gameService.game$;
     this.categories$ = this.gameService.categories$;
+    this.totalPuzzles$ = this.gameService.totalPuzzles$;
+    this.puzzlesProgress$ = this.totalPuzzles$.pipe(
+      map(puzzles=>(puzzles/this.puzzlesRequired) *100));
   }
 
   ngOnInit() {
