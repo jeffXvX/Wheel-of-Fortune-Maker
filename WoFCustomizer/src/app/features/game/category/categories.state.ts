@@ -1,5 +1,5 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { Category } from './category.model';
+import { Category, maxCategoryNameLength } from './category.model';
 import { defaultCategories } from './default_categories.model';
 import { ChangeCategoryName } from './categories.actions';
 ​
@@ -21,7 +21,7 @@ export class CategoriesState {
     const state = ctx.getState();
     let idx = state.findIndex((cat: Category)=>cat.id === action.id);
     let category = { ...state[idx] };
-    category.name = action.name;
+    category.name = action.name.substr(0, maxCategoryNameLength);
     state[idx] = category;
     ctx.setState([
       ...state 

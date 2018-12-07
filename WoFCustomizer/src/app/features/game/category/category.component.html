@@ -1,14 +1,26 @@
 <form>
   <mat-form-field>
       <mat-hint>7 characters max</mat-hint>
-      <input matInput type="text" placeholder="Category Name" [value]="category.name" (change)="onNameChange($event)"/>
+      <input 
+        matInput 
+        type="text"
+        maxlength="7" 
+        placeholder="Category Name" 
+        [value]="category.name" 
+        (change)="onNameChange($event)"/>
   </mat-form-field>
   <button mat-button mat-stroked-button type="button" (click)="addPuzzles()">Add Puzzle(s)</button>
   <mat-form-field>
     <mat-hint>Number of Puzzles to Add</mat-hint>
-    <input matInput type="number" min="1" max="255" [value]="numPuzzlesToAdd" (change)="onPuzzlesToAddChange($event)"/>
+    <input 
+      matInput 
+      type="number" 
+      min="1" 
+      max="255" 
+      [value]="numPuzzlesToAdd" 
+      (change)="onPuzzlesToAddChange($event)"/>
   </mat-form-field>
-  <p>{{numPuzzles$ | async}} / {{maxPuzzles}}</p>
+  <p>{{numPuzzles$ | async}} of {{maxPuzzles}} (max) puzzles</p>
 </form>
 
 <!--

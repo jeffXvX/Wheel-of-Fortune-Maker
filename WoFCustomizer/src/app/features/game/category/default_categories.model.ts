@@ -3,38 +3,38 @@ import { Category } from "./category.model";
 export const defaultCategories = (): Category[] => [
     {
       id:0,
-      name:'Category 1',
+      name:'Cat A',
     },
     {
       id:1,
-      name:'Category 2',
+      name:'Cat B',
     },
     {
       id:2,
-      name:'Category 3',
+      name:'Cat C',
     },
     {
       id:3,
-      name:'Category 4',
+      name:'Cat D',
     },
     {
       id:4,
-      name:'Category 5',
+      name:'Cat E',
     },
     {
       id:5,
-      name:'Category 6',
+      name:'Cat F',
     },
     {
       id:6,
-      name:'Category 7',
+      name:'Cat G',
     },
     {
       id:7,
-      name:'Category 8',
+      name:'Cat H',
     },
     {
       id:8,
-      name:'Category 9',
+      name:'Cat I',
     }
   ];

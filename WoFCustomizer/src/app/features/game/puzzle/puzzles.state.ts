@@ -1,6 +1,6 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { Puzzle } from './puzzle.model';
-import { AddPuzzles, SetPuzzleAnswerLine } from './puzzles.actions';
+import { Puzzle, line1MaxLength, line2MaxLength, line3MaxLength, line4MaxLength } from './puzzle.model';
+import { AddPuzzles, SetPuzzleAnswerLine, DeletePuzzle } from './puzzles.actions';
 import { Puzzles } from './puzzles.model';
 import { maxPuzzlesPerCategory } from '../category/category.model';
 import { defaultPuzzles } from './default_puzzles.model';
@@ -31,11 +31,10 @@ export class PuzzlesState {
   @Action(AddPuzzles)
   addPuzzles(ctx: StateContext<Puzzles>, action: AddPuzzles) {
     const state = ctx.getState();
+    const puzzlesAvailable = (PuzzlesState.maxPuzzles - state[action.catId].length);
+    const numPuzzlesToAdd = puzzlesAvailable > action.numPuzzles? action.numPuzzles: puzzlesAvailable;
+    const newPuzzles: Puzzle[] = [];
 
-    let puzzlesAvailable = (PuzzlesState.maxPuzzles - state[action.catId].length);
-    let numPuzzlesToAdd = puzzlesAvailable > action.numPuzzles? action.numPuzzles: puzzlesAvailable;
-
-    let newPuzzles: Puzzle[] = [];
     for(let i = 0; i < numPuzzlesToAdd; i++) {
       newPuzzles.push({
         line1: '',
@@ -56,19 +55,31 @@ export class PuzzlesState {
   @Action(SetPuzzleAnswerLine)
   setLine(ctx: StateContext<Puzzles>, action: SetPuzzleAnswerLine) {
     const state = ctx.getState();
-    
-    let index = state[action.catId].findIndex(puzzle=>puzzle===action.puzzle);
-    let puzzle = { ...state[action.catId][index] };
+    const index = state[action.catId].findIndex(puzzle=>puzzle===action.puzzle);
+    const puzzle = { ...state[action.catId][index] };
+    const newState = [...state[action.catId]];
 
     switch(action.line) {
-      case 0: { puzzle.line1 = action.answer; break; }
-      case 1: { puzzle.line2 = action.answer; break; }
-      case 2: { puzzle.line3 = action.answer; break; }
-      case 3: { puzzle.line4 = action.answer; break; }
+      case 0: { 
+        
+        puzzle.line1 = action.answer.substr(0,line1MaxLength); 
+        break; 
+      }
+      case 1: { 
+        puzzle.line2 = action.answer.substr(0,line2MaxLength); 
+        break; 
+      }
+      case 2: { 
+        puzzle.line3 = action.answer.substr(0,line3MaxLength);
+        break; 
+      }
+      case 3: { 
+        puzzle.line4 = action.answer.substr(0,line4MaxLength);
+        break; 
+      }
       default: { break; }
     }
 
-    let newState = [...state[action.catId]];
     newState[index] = puzzle;
 
     ctx.setState({
@@ -76,4 +87,19 @@ export class PuzzlesState {
       [action.catId]: newState
     });
   }
+
+  @Action(DeletePuzzle)
+  DeletePuzzle(ctx: StateContext<Puzzles>, action: DeletePuzzle) {
+    const state = ctx.getState();
+    const index = state[action.catId].findIndex(puzzle=>puzzle===action.puzzle);
+    const newPuzzles = [...state[action.catId]];
+
+    newPuzzles.splice(index,1);
+
+    ctx.setState({
+      ...state,
+      [action.catId]: newPuzzles
+    })
+  }
+  
 }

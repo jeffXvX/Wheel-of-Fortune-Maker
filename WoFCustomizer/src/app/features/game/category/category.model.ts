@@ -4,3 +4,4 @@ export interface Category {
 }
 
 export const maxPuzzlesPerCategory = 255;
+export const maxCategoryNameLength = 7;

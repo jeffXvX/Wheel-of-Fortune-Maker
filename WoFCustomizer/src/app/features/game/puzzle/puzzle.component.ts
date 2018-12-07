@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
-import { Puzzle } from './puzzle.model';
+import { Puzzle, line1MaxLength, line2MaxLength, line3MaxLength, line4MaxLength } from './puzzle.model';
 import { PuzzleService } from './puzzle.service';
 
 @Component({
@@ -16,10 +16,14 @@ export class PuzzleComponent implements OnInit {
   panelOpenState = false;
 
   static ellipsis = '...';
-  
+
   constructor(private puzzleService: PuzzleService) {}
 
   ngOnInit() {}
+
+  deletePuzzle() {
+    this.puzzleService.deletePuzzle(this.categoryId, this.puzzle);
+  }
 
   /**
    * Find the first line that isn't empty and return it
