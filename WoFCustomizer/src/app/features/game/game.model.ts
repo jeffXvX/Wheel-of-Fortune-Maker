@@ -1,4 +1,5 @@
 export interface Game {
+    name: string;
     categoryIds: number[];
 }
 

@@ -13,7 +13,7 @@ import { map } from 'rxjs/operators';
 })
 export class GameComponent implements OnInit {
   game$: Observable<Game>;
-  categories$: Observable<Category[]>;
+  gameName$: Observable<string>;
   totalPuzzles$: Observable<number>;
   puzzlesProgress$: Observable<number>;
 
@@ -21,7 +21,7 @@ export class GameComponent implements OnInit {
 
   constructor(private gameService: GameService) { 
     this.game$ = this.gameService.game$;
-    this.categories$ = this.gameService.categories$;
+    this.gameName$ = this.gameService.gameName$;
     this.totalPuzzles$ = this.gameService.totalPuzzles$;
     this.puzzlesProgress$ = this.totalPuzzles$.pipe(
       map(puzzles=>(puzzles/this.puzzlesRequired) *100));
@@ -29,4 +29,16 @@ export class GameComponent implements OnInit {
 
   ngOnInit() {
   }
+
+  onNameChange(e) {
+    this.gameService.setGameName(e.target.value);
+  }
+
+  MakeData() {
+  }
+
+  onSubmit(e){
+    e.preventDefault();
+  }
+
 }

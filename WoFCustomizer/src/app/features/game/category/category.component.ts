@@ -45,4 +45,8 @@ export class CategoryComponent implements OnInit {
     this.categoryService.addPuzzles(this.category.id, this.numPuzzlesToAdd);
   }
 
+  onSubmit(e) {
+    e.preventDefault();
+  }
+
 }

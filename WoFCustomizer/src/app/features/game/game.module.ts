@@ -9,14 +9,15 @@ import { CategoryService } from './category/category.service';
 import { PuzzleService } from './puzzle/puzzle.service';
 import { PuzzlesViewportDirective } from './puzzles-viewport/puzzles-viewport.directive';
 import { PuzzleInputFilterDirective } from './puzzle-input-filter/puzzle-input-filter.directive';
+import { CategoriesComponent } from './categories/categories.component';
 
 @NgModule({
-  declarations: [GameComponent, CategoryComponent, PuzzleComponent, PuzzlesViewportDirective, PuzzleInputFilterDirective],
+  declarations: [GameComponent, CategoryComponent, PuzzleComponent, PuzzlesViewportDirective, PuzzleInputFilterDirective, CategoriesComponent],
   imports: [
     CommonModule,
     MaterialComponentsModule
   ],
-  exports: [GameComponent],
+  exports: [GameComponent, CategoriesComponent],
   providers: [GameService, CategoryService, PuzzleService]
 })
 export class GameModule { }

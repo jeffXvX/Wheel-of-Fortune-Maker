@@ -1,12 +1,21 @@
-<div class="progress-container">
-  <mat-progress-bar mode="determinate" [value]="puzzlesProgress$ | async"></mat-progress-bar>
-  {{totalPuzzles$|async}} of {{puzzlesRequired}} puzzles
+<div class="game-controls-container">
+  <div class="name-container">
+    <form (submit)="onSubmit($event)">
+          <mat-form-field>
+              <mat-hint>The name of the game</mat-hint>
+              <input 
+                matInput 
+                type="text"
+                maxlength="7" 
+                [value]="gameName$ | async"
+                (change)="onNameChange($event)"
+                />
+          </mat-form-field>
+    </form>
+  </div>
+
+  <div class="progress-container">
+    <mat-progress-bar mode="determinate" [value]="puzzlesProgress$ | async"></mat-progress-bar>
+    {{totalPuzzles$|async}} of {{puzzlesRequired}} puzzles
+  </div>
 </div>
-<mat-tab-group>  
-  <ng-container *ngFor="let category of (categories$ | async)">
-    <mat-tab [label]="category.name"> 
-      <wof-category [category]="category">
-      </wof-category> 
-    </mat-tab>
-  </ng-container>
-</mat-tab-group>

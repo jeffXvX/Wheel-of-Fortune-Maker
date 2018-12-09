@@ -1,0 +1,9 @@
+<mat-tab-group>  
+  <ng-container *ngFor="let category of (categories$ | async)">
+    <mat-tab [label]="category.name"> 
+      <wof-category [category]="category">
+      </wof-category> 
+    </mat-tab>
+  </ng-container>
+</mat-tab-group>
+  

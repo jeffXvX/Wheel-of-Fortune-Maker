@@ -11,8 +11,12 @@ import { defaultPuzzles } from './default_puzzles.model';
 })
 export class PuzzlesState {
   static maxPuzzles = maxPuzzlesPerCategory;
-
+  
   @Selector() static puzzles(state: Puzzles) {
+    return state;
+  }
+
+  @Selector() static puzzlesByCategoryId(state: Puzzles) {
     return (categoryId: number) => 
       state[categoryId];
   }

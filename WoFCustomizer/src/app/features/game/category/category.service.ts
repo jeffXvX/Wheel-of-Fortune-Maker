@@ -26,7 +26,7 @@ export class CategoryService {
   }
 
   puzzles$(catId: number) {
-    return this.store.select(PuzzlesState.puzzles)
+    return this.store.select(PuzzlesState.puzzlesByCategoryId)
       .pipe(map(puzzlesFilterFn=>puzzlesFilterFn(catId)));
   }
 

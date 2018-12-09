@@ -79,4 +79,8 @@ export class PuzzleComponent implements OnInit {
       e.target.value.toUpperCase());
   }
 
+  onSubmit(e) {
+    e.preventDefault();
+  }
+
 }

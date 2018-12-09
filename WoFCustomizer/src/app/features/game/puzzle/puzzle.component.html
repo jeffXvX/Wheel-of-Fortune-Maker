@@ -11,7 +11,7 @@
                     {{panelOpenState ? 'Collapse...' : firstNonEmptyLine() }}
                 </mat-panel-description>
                 </mat-expansion-panel-header>
-            <form>
+            <form (submit)="onSubmit($event)">
                 <mat-form-field>
                     <mat-hint>11 characters max</mat-hint>
                     <input 
