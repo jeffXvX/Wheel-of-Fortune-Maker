@@ -19,9 +19,9 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 ## Additional information about Wheel of Fortune (NES)
 For further information about how Wheel of Fortune (NES) works, please visit:
 - [Wheel of Infinite Fortune](https://chrisbeaumont.org/infinite_wheel)
-- [TASVideo's Game Resources page for Wheel of Fortune (NES)] (http://tasvideos.org/GameResources/NES/WheelOfFortune.html)
-- A [complete list of the game's original puzzles] (http://tasvideos.org/GameResources/NES/WheelOfFortune/PuzzleList.html) is also available
-Additionally, a new puzzle set created by jeffXvX which focuses on video games and gaming is available to [download as a patch] (https://www.romhacking.net/hacks/4210/)
+- [TASVideo's Game Resources page for Wheel of Fortune (NES)](http://tasvideos.org/GameResources/NES/WheelOfFortune.html)
+- A [complete list of the game's original puzzles](http://tasvideos.org/GameResources/NES/WheelOfFortune/PuzzleList.html) is also available
+Additionally, a new puzzle set created by jeffXvX which focuses on video games and gaming is available to [download as a patch](https://www.romhacking.net/hacks/4210/)
 ## Contribute
 Contact tme321 if you are interested in contributing.
 ## Credits
