@@ -1,4 +1,5 @@
 import { Puzzle } from "./puzzle.model";
+import { Puzzles } from "./puzzles.model";
 
 export class AddPuzzles {
     static type = "[Puzzles] Add Puzzles";
@@ -8,6 +9,11 @@ export class AddPuzzles {
 export class DeletePuzzle {
     static type = "[Puzzles] Delete Puzzle";
     constructor(public catId: number, public puzzle: Puzzle) {}    
+}
+
+export class SetPuzzles {
+    static type = "[Puzzles] Set Puzzles";
+    constructor(public puzzles: Puzzles) {}    
 }
 
 export class SetPuzzleAnswerLine {

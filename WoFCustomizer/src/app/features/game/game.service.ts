@@ -19,7 +19,7 @@ export class GameService {
   }
 
   setGameName(name: string) {
-    this.store.dispatch(new SetGameName(name));
+    this.store.dispatch(new SetGameName({name: name}));
   }
 
 }

@@ -1,7 +1,7 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
 import { Game } from './game.model';
 ​import { defaultGame } from './default-game.model';
-import { SetGameName } from './game.actions';
+import { SetGameName, SetGame } from './game.actions';
 
 @State<Game>({
   name: 'game',
@@ -19,7 +19,12 @@ export class GameState {
   @Action(SetGameName)
   SetGameName(ctx: StateContext<Game>, action: SetGameName) {
     const newState = {...ctx.getState()};
-    newState.name = action.name;
+    newState.name = action.payload.name;
     ctx.setState(newState);
+  }
+
+  @Action(SetGame)
+  SetGame(ctx: StateContext<Game>, action: SetGame) {
+    ctx.setState(action.payload);
   }
 }

@@ -1,6 +1,6 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
 import { Puzzle, line1MaxLength, line2MaxLength, line3MaxLength, line4MaxLength } from './puzzle.model';
-import { AddPuzzles, SetPuzzleAnswerLine, DeletePuzzle } from './puzzles.actions';
+import { AddPuzzles, SetPuzzleAnswerLine, DeletePuzzle, SetPuzzles } from './puzzles.actions';
 import { Puzzles } from './puzzles.model';
 import { maxPuzzlesPerCategory } from '../category/category.model';
 import { defaultPuzzles } from './default_puzzles.model';
@@ -30,6 +30,11 @@ export class PuzzlesState {
   @Selector() static numPuzzles(state: Puzzles) {
     return (categoryId: number) => 
       state[categoryId].length;
+  }
+
+  @Action(SetPuzzles)
+  SetPuzzles(ctx: StateContext<Puzzles>, action: SetPuzzles) {
+    ctx.setState(action.puzzles);
   }
 
   @Action(AddPuzzles)
