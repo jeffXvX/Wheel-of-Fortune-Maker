@@ -1,0 +1,21 @@
+<div class="game-controls-container">
+  <div class="name-container">
+    <form (submit)="onSubmit($event)">
+          <mat-form-field>
+              <mat-hint>The name of the game</mat-hint>
+              <input 
+                matInput 
+                type="text"
+                maxlength="7" 
+                [value]="gameName$ | async"
+                (change)="onNameChange($event)"
+                />
+          </mat-form-field>
+    </form>
+  </div>
+
+  <div class="progress-container">
+    <mat-progress-bar mode="determinate" [value]="puzzlesProgress$ | async"></mat-progress-bar>
+    {{totalPuzzles$|async}} of {{puzzlesRequired}} puzzles
+  </div>
+</div>

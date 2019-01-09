@@ -1,0 +1,76 @@
+<div class="puzzle-container">
+    <div class="puzzle-form-container">
+        <mat-expansion-panel 
+            (opened)="panelOpenState = true"
+            (closed)="panelOpenState = false">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    Puzzle {{puzzleNum}}
+                </mat-panel-title>
+                <mat-panel-description>
+                    {{panelOpenState ? 'Collapse...' : firstNonEmptyLine() }}
+                </mat-panel-description>
+                </mat-expansion-panel-header>
+            <form (submit)="onSubmit($event)">
+                <mat-form-field>
+                    <mat-hint>11 characters max</mat-hint>
+                    <input 
+                        matInput 
+                        type="text" 
+                        placeholder="Line 1"
+                        value="{{puzzle.line1}}" 
+                        maxlength="11" 
+                        wofPuzzleInputFilter 
+                        style="text-transform:uppercase"
+                        (change)="line1Change($event)"/>
+                </mat-form-field>
+                <br/>
+
+                <mat-form-field>
+                    <mat-hint>13 characters max</mat-hint>
+                    <input 
+                        matInput 
+                        type="text" 
+                        placeholder="Line 2" 
+                        value="{{puzzle.line2}}" 
+                        maxlength="13" 
+                        wofPuzzleInputFilter 
+                        style="text-transform:uppercase"
+                        (change)="line2Change($event)"/>
+                </mat-form-field>
+                <br/>
+
+                <mat-form-field>
+                    <mat-hint>13 characters max</mat-hint>
+                    <input 
+                        matInput 
+                        type="text" 
+                        placeholder="Line 3"
+                        value="{{puzzle.line3}}"  
+                        maxlength="13" 
+                        wofPuzzleInputFilter 
+                        style="text-transform:uppercase"
+                        (change)="line3Change($event)"/>
+                </mat-form-field>
+                <br/>
+
+                <mat-form-field>
+                    <mat-hint>11 characters max</mat-hint>
+                    <input 
+                        matInput 
+                        type="text" 
+                        placeholder="Line 4" 
+                        value="{{puzzle.line4}}" 
+                        maxlength="11" 
+                        wofPuzzleInputFilter 
+                        style="text-transform:uppercase"
+                        (change)="line4Change($event)"/>
+                </mat-form-field>
+                <br/>
+            </form>
+        </mat-expansion-panel>
+    </div>
+    <div class="puzzle-controls-container">
+        <button mat-button mat-stroked-button (click)="deletePuzzle()">X</button>
+    </div>
+</div>
