@@ -5,12 +5,14 @@ import { MaterialComponentsModule } from '../material-components/material-compon
 import { GameModule } from '../features/game/game.module';
 import { FilesModule } from '../features/files/files.module';
 import { ConfigModule } from '../features/config/config.module';
+import { HomeModule } from '../features/home/home.module';
 
 @NgModule({
   declarations: [LayoutComponent],
   imports: [
     CommonModule,
     MaterialComponentsModule,
+    HomeModule,
     GameModule,
     FilesModule,
     ConfigModule
