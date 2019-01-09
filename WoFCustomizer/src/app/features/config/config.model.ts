@@ -1,9 +1,8 @@
 import { Game } from "../game/game.model";
 import { Category } from "../game/category/category.model";
-import { Puzzles } from "../game/puzzle/puzzles.model";
+import { Puzzles } from "../game/puzzles/puzzles.model";
 
 export interface GameConfig {
-    id: number,
     game: Game,
     categories: Category[],
     puzzles: Puzzles
@@ -11,6 +10,7 @@ export interface GameConfig {
 
 export interface WoFConfig {
     games: GameConfig[],
-    selectedGame: number,
-    lastId: number,
+    //selectedGameIndex: number,
+    //selectedGame: number,
+    //lastId: number,
 }

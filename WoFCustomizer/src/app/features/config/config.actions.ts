@@ -1,5 +1,9 @@
 import { WoFConfig, GameConfig } from "./config.model";
 
+export class CreateConfig {
+    static readonly type = '[Config] Create Config';
+}
+
 export class SetConfig {
     static readonly type = '[Config] Set Config';
     constructor(public payload: WoFConfig) {}
@@ -17,5 +21,5 @@ export class AddGameConfig {
 
 export class DeleteGameConfig {
     static readonly type = '[Config] Delete Game Config';
-    constructor(public payload: GameConfig) {}
+    constructor(public payload: { id: number}) {}
 }

@@ -1,10 +1,16 @@
 <p>
-  Handle Files here:
+    Configuration
 </p>
-
+  
 <div>
 
   <div>
+    <button mat-button 
+      mat-stroked-button 
+      type="button" 
+      (click)="createNewConfig()">
+      Create New Config
+    </button>
     <button mat-button 
       mat-stroked-button 
       type="button" 
@@ -29,11 +35,15 @@
 
 </div>
 
-
-
+<!--
+  These elements are the HTML5 way of handling files but since 
+  their styling is ugly hide them and interface with them through
+  Material elements above.
+-->
 <input #configFileInput type="file" (change)="openConfig($event)" style="display:none; height:0; width:0;"/>
 <a #configDownloadLink
   type="file"
   download="wof-config.json" 
   [href]="sanitizedConfigFile$ | async" 
-  style="display:none; height:0; width:0;"></a>
+  style="display:none; height:0; width:0;">
+</a>

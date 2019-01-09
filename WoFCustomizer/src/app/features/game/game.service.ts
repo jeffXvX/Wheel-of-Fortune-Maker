@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { GameState } from './game.state';
-import { CategoriesState } from './category/categories.state';
-import { PuzzlesState } from './puzzle/puzzles.state';
+import { CategoriesState } from './categories/categories.state';
+import { PuzzlesState } from './puzzles/puzzles.state';
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { Game } from './game.model';

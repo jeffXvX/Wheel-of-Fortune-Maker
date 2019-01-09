@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { CategoriesState } from './categories.state';
+import { CategoriesState } from '../categories/categories.state';
 import { Store } from '@ngxs/store';
 import { map } from 'rxjs/operators';
-import { PuzzlesState } from '../puzzle/puzzles.state';
-import { ChangeCategoryName } from './categories.actions';
+import { PuzzlesState } from '../puzzles/puzzles.state';
+import { ChangeCategoryName } from '../categories/categories.actions';
 import { Category } from './category.model';
-import { AddPuzzles } from '../puzzle/puzzles.actions';
+import { AddPuzzles } from '../puzzles/puzzles.actions';
 
 @Injectable()
 export class CategoryService {

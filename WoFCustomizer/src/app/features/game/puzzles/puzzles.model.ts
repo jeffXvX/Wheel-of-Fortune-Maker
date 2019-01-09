@@ -1,4 +1,4 @@
-import { Puzzle } from "./puzzle.model";
+import { Puzzle } from "../puzzle/puzzle.model";
 
 export interface Puzzles { 
     [categoryId: number]: Puzzle[] 

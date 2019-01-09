@@ -1,13 +1,12 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { Puzzle, line1MaxLength, line2MaxLength, line3MaxLength, line4MaxLength } from './puzzle.model';
+import { Puzzle, line1MaxLength, line2MaxLength, line3MaxLength, line4MaxLength } from '../puzzle/puzzle.model';
 import { AddPuzzles, SetPuzzleAnswerLine, DeletePuzzle, SetPuzzles } from './puzzles.actions';
 import { Puzzles } from './puzzles.model';
 import { maxPuzzlesPerCategory } from '../category/category.model';
-import { defaultPuzzles } from './default_puzzles.model';
+import { defaultPuzzle } from '../puzzle/default-puzzle.model';
 
 @State<Puzzles>({
   name: 'puzzles',
-  defaults: defaultPuzzles()
 })
 export class PuzzlesState {
   static maxPuzzles = maxPuzzlesPerCategory;
@@ -45,12 +44,7 @@ export class PuzzlesState {
     const newPuzzles: Puzzle[] = [];
 
     for(let i = 0; i < numPuzzlesToAdd; i++) {
-      newPuzzles.push({
-        line1: '',
-        line2: '',
-        line3: '',
-        line4: '',
-      });
+      newPuzzles.push(defaultPuzzle());
     }
 
     ctx.setState({

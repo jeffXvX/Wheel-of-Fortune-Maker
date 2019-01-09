@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { WoFLayoutModule } from './layout/layout.module';
 import { StoreModule } from './store/store.module';
+import { AppService } from './app.service';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,7 @@ import { StoreModule } from './store/store.module';
     WoFLayoutModule,
     StoreModule
   ],
-  providers: [],
+  providers: [AppService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

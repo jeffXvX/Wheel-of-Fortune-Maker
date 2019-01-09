@@ -2,7 +2,6 @@ import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Game, puzzlesRequired } from './game.model';
 import { GameService } from './game.service';
 import { Observable } from 'rxjs';
-import { Category } from './category/category.model';
 import { map } from 'rxjs/operators';
 
 @Component({

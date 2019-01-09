@@ -1,11 +1,12 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { Category, maxCategoryNameLength } from './category.model';
+import { Category, maxCategoryNameLength } from '../category/category.model';
 import { defaultCategories } from './default_categories.model';
 import { ChangeCategoryName, SetCategories } from './categories.actions';
 ​
 @State<Category[]>({
   name: 'categories',
-  defaults: defaultCategories()
+  defaults: []
+  //defaults: defaultCategories()
 })
 export class CategoriesState {
   @Selector() static category(state: Category[]) {

@@ -1,4 +1,4 @@
-import { Puzzle } from "./puzzle.model";
+import { Puzzle } from "../puzzle/puzzle.model";
 import { Puzzles } from "./puzzles.model";
 
 export class AddPuzzles {

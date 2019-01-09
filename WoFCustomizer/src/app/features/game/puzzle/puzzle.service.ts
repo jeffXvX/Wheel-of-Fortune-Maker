@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { SetPuzzleAnswerLine, DeletePuzzle } from './puzzles.actions';
+import { SetPuzzleAnswerLine, DeletePuzzle } from '../puzzles/puzzles.actions';
 import { Puzzle } from './puzzle.model';
 
 @Injectable()

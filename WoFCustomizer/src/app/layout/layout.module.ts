@@ -4,6 +4,7 @@ import { LayoutComponent } from './layout.component';
 import { MaterialComponentsModule } from '../material-components/material-components.module';
 import { GameModule } from '../features/game/game.module';
 import { FilesModule } from '../features/files/files.module';
+import { ConfigModule } from '../features/config/config.module';
 
 @NgModule({
   declarations: [LayoutComponent],
@@ -11,7 +12,8 @@ import { FilesModule } from '../features/files/files.module';
     CommonModule,
     MaterialComponentsModule,
     GameModule,
-    FilesModule
+    FilesModule,
+    ConfigModule
   ],
   exports: [LayoutComponent]
 })

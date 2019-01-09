@@ -1,4 +1,4 @@
-import { Category } from "./category.model";
+import { Category } from "../category/category.model";
 
 export class ChangeCategoryName {
     static readonly type = '[Category] Change Name';

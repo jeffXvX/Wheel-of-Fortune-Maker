@@ -1,11 +1,9 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
 import { Game } from './game.model';
-​import { defaultGame } from './default-game.model';
 import { SetGameName, SetGame } from './game.actions';
 
 @State<Game>({
-  name: 'game',
-  defaults: defaultGame()
+  name: 'game'
 })
 export class GameState {
   @Selector() static game(state: Game) {

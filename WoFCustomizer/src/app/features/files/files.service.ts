@@ -2,11 +2,11 @@ import { Injectable } from '@angular/core';
 import { Select } from '@ngxs/store';
 import { Observable, combineLatest } from 'rxjs';
 import { GameState } from '../game/game.state';
-import { CategoriesState } from '../game/category/categories.state';
-import { PuzzlesState } from '../game/puzzle/puzzles.state';
+import { CategoriesState } from '../game/categories/categories.state';
+import { PuzzlesState } from '../game/puzzles/puzzles.state';
 import { Game } from '../game/game.model';
 import { Category } from '../game/category/category.model';
-import { Puzzles } from '../game/puzzle/puzzles.model';
+import { Puzzles } from '../game/puzzles/puzzles.model';
 import { GameConfig } from '../config/config.model';
 
 @Injectable()
@@ -29,7 +29,6 @@ export class FilesService {
     .subscribe(([game,categories, puzzles])=>{
       //console.log('game data:',game,categories, puzzles);
       let config: GameConfig = {
-        id: 0,
         game: game,
         categories: categories,
         puzzles: puzzles
