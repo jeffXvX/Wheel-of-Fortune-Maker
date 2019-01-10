@@ -1,26 +1,33 @@
-<p>
-    Configuration
-</p>
-  
 <div>
 
   <div>
-    <button mat-button 
-      mat-stroked-button 
-      type="button" 
-      (click)="createNewConfig()">
-      Create New Config
-    </button>
+  
+    <mat-form-field>
+        <input matInput 
+          placeholder="Config Filename" 
+          [value]="configFileName$ | async"
+          (change)="changeConfigFileName($event)"
+          [disabled]="!(configFileNameExists$ | async)">
+    </mat-form-field>
     <button mat-button 
       mat-stroked-button 
       type="button" 
       (click)="configFileInput.click()">
       Open Config
     </button>
+    <button mat-button 
+      mat-stroked-button 
+      type="button" 
+      (click)="createNewConfig()">
+      New Config
+    </button>
   </div>
 
   <mat-form-field>
-    <mat-select placeholder="Edit Game..." [(value)]="selectedGameId" (selectionChange)="openGame()">
+    <mat-select placeholder="Edit Game..." 
+      [(value)]="selectedGameId" 
+      (selectionChange)="openGame()"
+      [disabled]="!(games$ | async)">
       <mat-option [value]="(lastId$ | async) + 1">Add Game...</mat-option>
       <mat-option *ngFor="let game of games$ | async" [value]="game.id">{{game.name}}</mat-option>
     </mat-select>
@@ -29,6 +36,7 @@
   <div>
     <button mat-button 
       mat-stroked-button
+      [disabled]="!(configFileNameExists$ | async)"
       (click)="writeConfig($event)">Write Config
     </button>
   </div> 
@@ -40,10 +48,13 @@
   their styling is ugly hide them and interface with them through
   Material elements above.
 -->
-<input #configFileInput type="file" (change)="openConfig($event)" style="display:none; height:0; width:0;"/>
+<input #configFileInput 
+  type="file" 
+  (change)="openConfig($event)" 
+  style="display:none; height:0; width:0;"/>
 <a #configDownloadLink
   type="file"
-  download="wof-config.json" 
+  [download]="configFileName$ | async" 
   [href]="sanitizedConfigFile$ | async" 
   style="display:none; height:0; width:0;">
 </a>

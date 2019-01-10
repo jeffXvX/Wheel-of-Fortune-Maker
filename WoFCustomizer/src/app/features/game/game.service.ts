@@ -12,6 +12,7 @@ import { SetGameName } from './game.actions';
 export class GameService {
   @Select(GameState.game) game$: Observable<Game>;
   @Select(GameState.gameName) gameName$: Observable<string>;
+  @Select(GameState.gameIsLoaded) isLoaded$: Observable<boolean>;
   @Select(CategoriesState.categories) categories$: Observable<Category[]>;
   @Select(PuzzlesState.totalPuzzles) totalPuzzles$: Observable<number>;
   

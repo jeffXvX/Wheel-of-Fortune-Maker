@@ -42,14 +42,13 @@ export class ConfigService {
   }
   
   writeConfig() {
-    const writeConfigSub = this.config$.subscribe(config=>{
+    this.store.selectOnce(ConfigState.config).subscribe(config=>{
       let configBlob = new Blob([JSON.stringify(config)], {type: 'text/plain'});
       if (this.configFile !== null) {
         window.URL.revokeObjectURL(this.configFile);
       }
       this.configFile = window.URL.createObjectURL(configBlob);
       this.sanitizedConfigFileSubject.next(this.sanitizer.bypassSecurityTrustUrl(this.configFile));
-      writeConfigSub.unsubscribe();
     }); 
   }
 

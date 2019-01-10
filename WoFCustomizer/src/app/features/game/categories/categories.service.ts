@@ -9,6 +9,7 @@ import { Categories } from './categories.model';
 })
 export class CategoriesService {
   @Select(CategoriesState.categories) categories$: Observable<Categories>;
+  @Select(CategoriesState.categoriesAreLoaded) areLoaded$: Observable<boolean>;
 
   constructor() { }
 }

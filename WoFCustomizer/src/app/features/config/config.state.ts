@@ -2,9 +2,9 @@ import { State, Selector, Action, StateContext, Store } from '@ngxs/store';
 import { WoFConfig, GameConfig } from './config.model';
 import { defaultWoFConfig } from './default-config.model';
 import { SetConfig, SelectGameConfig, AddGameConfig, DeleteGameConfig, CreateConfig } from './config.actions';
-import { SetGame, SetGameName } from '../game/game.actions';
-import { SetCategories, ChangeCategoryName } from '../game/categories/categories.actions';
-import { SetPuzzles, AddPuzzles, DeletePuzzle, SetPuzzleAnswerLine } from '../game/puzzles/puzzles.actions';
+import { SetGame, SetGameName, ResetGame } from '../game/game.actions';
+import { SetCategories, ChangeCategoryName, ResetCategories } from '../game/categories/categories.actions';
+import { SetPuzzles, AddPuzzles, DeletePuzzle, SetPuzzleAnswerLine, ResetPuzzles } from '../game/puzzles/puzzles.actions';
 import { copyGame, Game } from '../game/game.model';
 import { copyCategories, Categories } from '../game/categories/categories.model';
 import { copyPuzzles, Puzzles } from '../game/puzzles/puzzles.model';
@@ -37,12 +37,27 @@ export class ConfigState {
   @Action(CreateConfig)
   CreateConfig(ctx: StateContext<WoFConfig>) {
     ctx.setState(defaultWoFConfig());
-    return ctx.dispatch(new SelectGameConfig({id:0}));
+
+    const resetActions = [
+      new ResetGame(),
+      new ResetCategories(),
+      new ResetPuzzles()
+    ];
+
+    return ctx.dispatch(resetActions);
   }
 
   @Action(SetConfig)
   changeName(ctx: StateContext<WoFConfig>, action: SetConfig) {
     ctx.setState(action.payload);
+
+    const resetActions = [
+      new ResetGame(),
+      new ResetCategories(),
+      new ResetPuzzles()
+    ];
+
+    return ctx.dispatch(resetActions);
   }
 
   @Action(SelectGameConfig)

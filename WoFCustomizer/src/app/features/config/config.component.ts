@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { SafeUrl } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { tap, map } from 'rxjs/operators';
 import { ConfigService } from './config.service';
 import { WoFConfig } from './config.model';
 import { Game } from '../game/game.model';
@@ -18,8 +18,14 @@ export class ConfigComponent implements OnInit {
   games$: Observable<Game[]>;
   lastId$: Observable<number>;
   sanitizedConfigFile$: Observable<SafeUrl>;  
+  configFileName$ = new Subject<string>();
+  configFileNameExists$: Observable<boolean>;
   selectedGameId: number;
-  configFile: string;
+
+  changeConfigFileName(event: Event) {
+    const name = (event.target as HTMLInputElement).value;
+    this.configFileName$.next(name);
+  }
 
   constructor(private configService: ConfigService) { 
     this.config$ = this.configService.config$;
@@ -35,16 +41,26 @@ export class ConfigComponent implements OnInit {
               (this.configDownloadLink.nativeElement as HTMLAnchorElement).click();
             });
         }));
+
+    this.configFileNameExists$ = this.configFileName$.pipe(
+      map(name=>name && name.length > 0)
+    );
   }
 
   createNewConfig() {
+    this.selectedGameId = undefined;
+    this.configFileName$.next('wof-config.json');
     this.configService.createConfig();
   }
 
   openConfig(e: Event) {
     const file = (e.target as HTMLInputElement).files[0];
+    this.selectedGameId = undefined;
+    this.configFileName$.next(file.name);
     this.configService.readConfig(file);
-    //this.selectedGameId = -1;
+    // Reset the value to empty each time so the change event will
+    // fire if the same file is selected multiple times.
+    (e.target as HTMLInputElement).value = '';
   }
 
   openGame() {
