@@ -35,6 +35,7 @@ export class CategoryComponent implements OnInit {
   }
 
   /**
+   * 
    * The max number of puzzles to add should probably be enforced
    * by the store but for the moment I'll just enforce it here.
    * 

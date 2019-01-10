@@ -1,6 +1,6 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
 import { Game } from './game.model';
-import { SetGameName, SetGame } from './game.actions';
+import { SetGameName, SetGame, ResetGame } from './game.actions';
 
 @State<Game>({
   name: 'game'
@@ -12,6 +12,19 @@ export class GameState {
 
   @Selector() static gameName(state: Game) {
     return state.name;
+  }
+
+  @Selector() static gameIsLoaded(state: Game) {
+    return !!state.name;
+  }
+
+  @Action(ResetGame)
+  ResetGame(ctx: StateContext<Game>) {
+    ctx.setState({
+      id: undefined,
+      name: undefined,
+      categoryIds: undefined
+    });
   }
   ​
   @Action(SetGameName)

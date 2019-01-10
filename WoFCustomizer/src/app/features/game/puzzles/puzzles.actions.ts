@@ -11,6 +11,10 @@ export class DeletePuzzle {
     constructor(public catId: number, public puzzle: Puzzle) {}    
 }
 
+export class ResetPuzzles {
+    static type = "[Puzzles] Reset Puzzles";
+}
+
 export class SetPuzzles {
     static type = "[Puzzles] Set Puzzles";
     constructor(public puzzles: Puzzles) {}    

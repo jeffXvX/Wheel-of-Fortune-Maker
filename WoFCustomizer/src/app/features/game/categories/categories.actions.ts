@@ -9,3 +9,7 @@ export class SetCategories {
     static readonly type = '[Category] Set Categories';
     constructor(public categories: Category[]) {}
 }
+
+export class ResetCategories {
+    static readonly type = '[Category] Reset Categories';
+}

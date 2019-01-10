@@ -15,7 +15,6 @@ export class CategoriesComponent implements OnInit {
 
   ngOnInit() {
     this.categories$ = this.categoriesService.categories$;
-    this.categories$.subscribe(c=>console.log('cat',c));
   }
 
 }

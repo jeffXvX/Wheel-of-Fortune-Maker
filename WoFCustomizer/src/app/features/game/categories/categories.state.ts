@@ -1,7 +1,7 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
 import { Category, maxCategoryNameLength } from '../category/category.model';
 import { defaultCategories } from './default_categories.model';
-import { ChangeCategoryName, SetCategories } from './categories.actions';
+import { ChangeCategoryName, SetCategories, ResetCategories } from './categories.actions';
 ​
 @State<Category[]>({
   name: 'categories',
@@ -15,6 +15,15 @@ export class CategoriesState {
 
   @Selector() static categories(state: Category[]) {
     return state;
+  }
+
+  @Selector() static categoriesAreLoaded(state: Category[]) {
+    return state.length > 0;
+  }
+
+  @Action(ResetCategories)
+  ResetCategories(ctx: StateContext<Category[]>) {
+    ctx.setState([]);
   }
 
   @Action(SetCategories)
