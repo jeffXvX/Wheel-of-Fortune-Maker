@@ -1,15 +1,14 @@
 div.game-controls-container {
     display:flex;
     flex-direction: column;
+    justify-content: space-between
 }
 
 div.progress-container {
-    width:300px;
-    padding-top:14px;
-    padding-bottom:14px;
+    width:20em;
 }
 
 div.name-container,
 div.progress-container {
-    min-height:200px;
+    margin-bottom:1.5em;
 }

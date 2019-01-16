@@ -1,7 +1,13 @@
 <div>
 
   <div>
-  
+
+    <button mat-button 
+      mat-stroked-button 
+      type="button" 
+      (click)="createNewConfig()">
+      New Config
+    </button>
     <mat-form-field>
         <input matInput 
           placeholder="Config Filename" 
@@ -16,10 +22,9 @@
       Open Config
     </button>
     <button mat-button 
-      mat-stroked-button 
-      type="button" 
-      (click)="createNewConfig()">
-      New Config
+      mat-stroked-button
+      [disabled]="!(configFileNameExists$ | async)"
+      (click)="writeConfig($event)">Write Config
     </button>
   </div>
 
@@ -33,15 +38,27 @@
     </mat-select>
   </mat-form-field>
 
-  <div>
-    <button mat-button 
-      mat-stroked-button
-      [disabled]="!(configFileNameExists$ | async)"
-      (click)="writeConfig($event)">Write Config
-    </button>
-  </div> 
-
 </div>
+
+<mat-divider></mat-divider>
+
+<div>
+  <mat-form-field>
+    <mat-select placeholder="Choose Game..." 
+      [(value)]="selectedGameIdForRom" 
+      [disabled]="!(games$ | async)">
+      <mat-option *ngFor="let game of games$ | async" [value]="game.id">{{game.name}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <button mat-button 
+    mat-stroked-button
+    [disabled]="!(configFileNameExists$ | async)"
+    (click)="writeRom(selectedGameIdForRom)"
+    >Write Rom
+  </button>
+</div>
+<!-- (click)="writeConfig($event)" -->
 
 <!--
   These elements are the HTML5 way of handling files but since 
@@ -58,3 +75,5 @@
   [href]="sanitizedConfigFile$ | async" 
   style="display:none; height:0; width:0;">
 </a>
+
+

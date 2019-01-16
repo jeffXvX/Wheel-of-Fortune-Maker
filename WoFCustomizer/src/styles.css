@@ -9,3 +9,7 @@ ul {
     max-height: 100% !important;
     overflow: inherit !important;
 }
+
+.container {
+    margin: 1.5em;
+}

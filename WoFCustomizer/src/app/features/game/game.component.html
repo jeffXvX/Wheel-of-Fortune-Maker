@@ -11,10 +11,18 @@
                 />
           </mat-form-field>
     </form>
+    <mat-divider></mat-divider>
   </div>
+
 
   <div class="progress-container">
     <mat-progress-bar mode="determinate" [value]="puzzlesProgress$ | async"></mat-progress-bar>
     {{totalPuzzles$|async}} of {{puzzlesRequired}} puzzles
+  </div>
+
+  <div class="progress-container">
+    <mat-progress-bar mode="determinate" [value]="charactersProgress$ | async"></mat-progress-bar>
+    {{charactersUsed$|async}} of {{maxCharacters}} max characters
+        
   </div>
 </div>

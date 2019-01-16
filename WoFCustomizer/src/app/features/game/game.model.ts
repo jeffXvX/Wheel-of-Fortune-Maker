@@ -13,3 +13,5 @@ export function copyGame(game:Game) {
 }
 
 export const puzzlesRequired = 1001;
+export const maxCharacters = 30130;
+
