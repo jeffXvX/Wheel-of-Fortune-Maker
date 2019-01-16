@@ -22,6 +22,8 @@ export class ConfigComponent implements OnInit {
   configFileNameExists$: Observable<boolean>;
   selectedGameId: number;
 
+  selectedGameIdForRom: number;
+
   changeConfigFileName(event: Event) {
     const name = (event.target as HTMLInputElement).value;
     this.configFileName$.next(name);
@@ -69,6 +71,10 @@ export class ConfigComponent implements OnInit {
 
   writeConfig(e: MouseEvent) {
     this.configService.writeConfig();
+  }
+
+  writeRom(id: number) {
+    this.configService.writeRom(id);
   }
 
 }

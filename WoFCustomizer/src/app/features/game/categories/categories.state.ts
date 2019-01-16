@@ -33,14 +33,12 @@ export class CategoriesState {
 
   @Action(ChangeCategoryName)
   changeName(ctx: StateContext<Category[]>, action: ChangeCategoryName) {
-    const state = ctx.getState();
+    const state = [...ctx.getState()];
     let idx = state.findIndex((cat: Category)=>cat.id === action.id);
     let category = { ...state[idx] };
     category.name = action.name.substr(0, maxCategoryNameLength);
     state[idx] = category;
-    ctx.setState([
-      ...state 
-    ]);
+    ctx.setState(state);
   }
 
 }

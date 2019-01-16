@@ -9,39 +9,39 @@
 			"categories": [
 				{
 					"id": 0,
-					"name": "TESTCATA"
+					"name": "TSTCATA"
 				},
 				{
 					"id": 1,
-					"name": "TESTCATB"
+					"name": "TSTCATB"
 				},
 				{
 					"id": 2,
-					"name": "TESTCATC"
+					"name": "TSTCATC"
 				},
 				{
 					"id": 3,
-					"name": "TESTCATD"
+					"name": "TSTCATD"
 				},
 				{
 					"id": 4,
-					"name": "TESTCATE"
+					"name": "TSTCATE"
 				},
 				{
 					"id": 5,
-					"name": "TESTCATF"
+					"name": "TSTCATF"
 				},
 				{
 					"id": 6,
-					"name": "TESTCATG"
+					"name": "TSTCATG"
 				},
 				{
 					"id": 7,
-					"name": "TESTCATH"
+					"name": "TSTCATH"
 				},
 				{
 					"id": 8,
-					"name": "TESTCATI"
+					"name": "TSTCATI"
 				}
 			],
 			"puzzles": {

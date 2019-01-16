@@ -52,5 +52,11 @@ export class ConfigService {
     }); 
   }
 
+  writeRom(id: number) {
+    this.store.selectOnce(ConfigState.games).subscribe(games=>{
+      console.log('writing rom:',games[id]);
+    })
+  }
+
 
 }

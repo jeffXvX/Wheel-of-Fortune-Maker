@@ -15,7 +15,8 @@ export class GameService {
   @Select(GameState.gameIsLoaded) isLoaded$: Observable<boolean>;
   @Select(CategoriesState.categories) categories$: Observable<Category[]>;
   @Select(PuzzlesState.totalPuzzles) totalPuzzles$: Observable<number>;
-  
+  @Select(PuzzlesState.characterUsed) charactersUsed$: Observable<number>;
+
   constructor(private store: Store) {   
   }
 

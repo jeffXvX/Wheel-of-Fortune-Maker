@@ -25,7 +25,28 @@ export class PuzzlesState {
         return length + state[columnId].length;
     }, 0);
   }
-  
+
+  /**
+   * This selector is totalling all the characters used
+   * across all puzzle answers.  It might become a 
+   * performance issue once a game is fully filled out 
+   * so if that is the case it will need to be reworked 
+   * as a background task instead of a selector.
+   * 
+   * But for now the simplest version will be fine.
+   */
+  @Selector() static characterUsed(state: Puzzles) {
+    return Object.keys(state).reduce(
+      (totalCharacters: number, columnId: string)=>{
+        totalCharacters += (state[columnId] as Puzzle[]).reduce(
+            (characters: number, puzzle:Puzzle)=>{
+              characters += puzzle.line1.length + puzzle.line2.length + puzzle.line3.length + puzzle.line4.length; 
+              return characters;
+            },0);
+        return totalCharacters;
+      }, 0);
+  }
+
   @Selector() static numPuzzles(state: Puzzles) {
     return (categoryId: number) => {
       let length = 0;
