@@ -5,7 +5,6 @@ import { ConfigState } from './config.state';
 import { WoFConfig } from './config.model';
 import { Game } from '../game/game.model';
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
-import { tap } from 'rxjs/operators';
 import { SetConfig, SelectGameConfig, CreateConfig } from './config.actions';
 
 @Injectable()
@@ -51,12 +50,5 @@ export class ConfigService {
       this.sanitizedConfigFileSubject.next(this.sanitizer.bypassSecurityTrustUrl(this.configFile));
     }); 
   }
-
-  writeRom(id: number) {
-    this.store.selectOnce(ConfigState.games).subscribe(games=>{
-      console.log('writing rom:',games[id]);
-    })
-  }
-
 
 }

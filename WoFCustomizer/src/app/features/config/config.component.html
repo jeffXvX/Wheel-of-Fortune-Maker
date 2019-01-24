@@ -54,7 +54,7 @@
   <button mat-button 
     mat-stroked-button
     [disabled]="!(configFileNameExists$ | async)"
-    (click)="writeRom(selectedGameIdForRom)"
+    (click)="romFileInput.click() || writeRom(selectedGameIdForRom)"
     >Write Rom
   </button>
 </div>
@@ -65,6 +65,8 @@
   their styling is ugly hide them and interface with them through
   Material elements above.
 -->
+
+<!-- Config -->
 <input #configFileInput 
   type="file" 
   (change)="openConfig($event)" 
@@ -76,4 +78,8 @@
   style="display:none; height:0; width:0;">
 </a>
 
-
+<!-- Rom -->
+<input #romFileInput 
+  type="file" 
+  (change)="openRom($event)" 
+  style="display:none; height:0; width:0;"/>

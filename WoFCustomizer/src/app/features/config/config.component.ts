@@ -5,6 +5,7 @@ import { tap, map } from 'rxjs/operators';
 import { ConfigService } from './config.service';
 import { WoFConfig } from './config.model';
 import { Game } from '../game/game.model';
+import { RomService } from '../rom/rom.service';
 
 @Component({
   selector: 'wof-config',
@@ -29,7 +30,7 @@ export class ConfigComponent implements OnInit {
     this.configFileName$.next(name);
   }
 
-  constructor(private configService: ConfigService) { 
+  constructor(private configService: ConfigService, private romService: RomService) { 
     this.config$ = this.configService.config$;
     this.games$ = this.configService.games$;
     this.lastId$ = this.configService.lastId$;
@@ -74,7 +75,13 @@ export class ConfigComponent implements OnInit {
   }
 
   writeRom(id: number) {
-    this.configService.writeRom(id);
+    this.romService.writeRom(id);
+  }
+
+  openRom(e: Event) {
+    const file = (e.target as HTMLInputElement).files[0];
+    this.romService.readRom(file);
+    (e.target as HTMLInputElement).value = '';
   }
 
 }
