@@ -1,0 +1,19 @@
+export const catNameLengthDecodeTable = {
+    0x0C : 2,
+    0x10 : 3,
+    0x14 : 4,
+    0x18 : 5,
+    0x1C : 6,
+    0x20 : 7,
+    0x24 : 8
+};
+
+export const catNameLengthEncodeTable = {
+    2: 0x0C,
+    3: 0x10,
+    4: 0x14,
+    5: 0x18,
+    6: 0x1C,
+    7: 0x20,
+    8: 0x24,
+};

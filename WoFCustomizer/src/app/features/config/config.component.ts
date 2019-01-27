@@ -23,7 +23,11 @@ export class ConfigComponent implements OnInit {
   configFileNameExists$: Observable<boolean>;
   selectedGameId: number;
 
+  romFileName$ = new Subject<string>();
+
   selectedGameIdForRom: number;
+
+
 
   changeConfigFileName(event: Event) {
     const name = (event.target as HTMLInputElement).value;
@@ -81,6 +85,7 @@ export class ConfigComponent implements OnInit {
   openRom(e: Event) {
     const file = (e.target as HTMLInputElement).files[0];
     this.romService.readRom(file);
+    this.romFileName$.next(file.name);
     (e.target as HTMLInputElement).value = '';
   }
 

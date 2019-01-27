@@ -3,8 +3,13 @@ import { Store } from '@ngxs/store';
 import { ConfigState } from '../config/config.state';
 import { Category } from '../game/category/category.model';
 import { Puzzles } from '../game/puzzles/puzzles.model';
-import { catNameLookupTable } from './category-name-lookup-table.model';
+import { catNameEncodeTable, catNameDecodeTable } from './category-name-tables.model';
 import { Puzzle } from '../game/puzzle/puzzle.model';
+import { combineLatest } from 'rxjs';
+import { SetRomContents } from './rom.actions';
+import { RomState } from './rom.state';
+import { catNameLengthDecodeTable } from './category-name-length-tables.model';
+
 
 @Injectable()
 export class RomService {
@@ -14,20 +19,66 @@ export class RomService {
   readRom(file: File) {
     const reader = new FileReader();
     reader.onloadend = pe => {
-      const RamAddressOffset = 0x8010;
 
-      // solutions
-      let solutionsStart = 0x109DE;
-      let solutionsEnd = 0x14619; //83480 is last charact, slice is exclusive on end index
-      const puzzles = reader.result.slice(solutionsStart,solutionsEnd) as ArrayBuffer;
-      let dv = new DataView(puzzles);
+      const RomFileBuffer = reader.result as ArrayBuffer;
 
-      let pa = [];
-      for(let i = 0; i < solutionsEnd - solutionsStart; i++) {
-        pa.push(dv.getUint8(i));
-      }
-      console.log('puzzle solutions:',String.fromCharCode(...pa));
+      const contents = this.convertArrayBufferToArray(RomFileBuffer);
+      console.log("file contents:\n",contents);
+      this.store.dispatch(new SetRomContents({ contents: contents }));
 
+
+      /*
+      
+
+
+
+      */
+    };
+    const text = reader.readAsArrayBuffer(file);
+  }
+
+  convertArrayBufferToArray(buffer: ArrayBuffer) {
+    const array = new Array<number>(buffer.byteLength);
+    const dataView = new DataView(buffer);
+    for(let i=0;i<array.length;i++) {
+      array[i] = dataView.getUint8(i);
+    }
+    return array;
+  }
+
+  replacePuzzleSolutions(
+    contents: number[], 
+    encodedCategories: EncodedCategories) {
+    const solutionsStart = 0x109DE;
+    const solutionsEnd = 0x14618; 
+    
+    contents.slice(solutionsStart,solutionsEnd)
+
+    console.log('Solutions:\n',contents.slice(solutionsStart,solutionsEnd).map(num=>String.fromCharCode(num)));
+
+    //console.log('puzzle solutions:',String.fromCharCode(...pa));
+    //const puzzles = reader.result.slice(solutionsStart,solutionsEnd) as ArrayBuffer;      
+    
+    //let dv = new DataView(puzzles);
+    
+    //let pa = [];
+    /*
+    for(let i = solutionsStart; i < solutionsEnd - solutionsStart; i++) {
+      pa.push(dv.getUint8(i));
+    }
+    console.log('puzzle solutions:',String.fromCharCode(...pa));
+    */
+
+  }
+
+  replacePuzzleAddresses(
+    contents: number[],
+    encodedCategories: EncodedCategories) {
+    let solutionPointersStart = 0x101FC;
+    const solutionPointers = contents.slice(solutionPointersStart,solutionPointersStart + 2000);
+    console.log('solution pointers:',solutionPointers.map(num=>num.toString(16)));
+
+    /*
       // solution addresses
       let solutionPointersStart = 0x101FC;
       let sa = [];
@@ -37,7 +88,17 @@ export class RomService {
         sa.push(sadv.getUint16(i));
       }
       console.log('solution pointers:',sa.map(num=>num.toString(16)));
+    */
+  }
 
+  replaceCategoryPointers(
+    contents: number[],
+    encodedCategories: EncodedCategories) {
+      let RamAddressOffset = 0x8010; // 32784
+      let categoryPointersStart = 0x101E8;
+      const categoryPointers = contents.slice(categoryPointersStart,categoryPointersStart + 18);
+      console.log('category pointers:',categoryPointers.map(num=>num.toString(16)));
+      /*
       //category pointers?  not sure what these are yet...
       let categoryPointersStart = 0x101E8;
       let cp = [];
@@ -48,55 +109,105 @@ export class RomService {
       }
       console.log('category start pointers:',cp.map(num=>num.toString(16)));
 
-      // number of solutions in category
-      let numOfCategoryAnswersAddresses = [0x100DD, 0x100E9, 0x100F5, 0x10101, 0x1010D, 0x10119, 0x10125, 0x10131];
-      let nca = [];
-      numOfCategoryAnswersAddresses.forEach(address=>{
-        let ncadv = new DataView(reader.result.slice(address,address+1) as ArrayBuffer);
-        nca.push(ncadv.getUint8(0));
-      });
-      console.log('num category answers:',nca.map(num=>num.toString(10)));
+      //offset because the pointer is pointing to the address in ram, not in the rom.  Need to stop forgetting that...
+      let fpdv = new DataView(reader.result.slice(33260 + RamAddressOffset,33262 + RamAddressOffset) as ArrayBuffer);
 
-      let categoryNamesStart = 0x1483;
-      let categoryNameLength = 8;
-      let categoryUnusedByte = 0x00;
+      */
+  }
 
-      let categoryNameLengthStart = 0x1FAF;
-      // 0x0C is 2 letter category name length, add 4 for each additional letter, max 7
-      let categoryNameLength2 = 0x0C;
-      let categoryNameLength3 = 0x10;
-      let categoryNameLength4 = 0x14;
-      let categoryNameLength5 = 0x18;
-      let categoryNameLength6 = 0x1C;
-      let categoryNameLength7 = 0x20;
+  replaceNumberOfPuzzlesInCategories(
+    contents: number[],
+    encodedCategories: EncodedCategories) {
+    let numOfCategoryAnswersAddresses = [0x100DD, 0x100E9, 0x100F5, 0x10101, 0x1010D, 0x10119, 0x10125, 0x10131];
 
+    let nca = [];
+    numOfCategoryAnswersAddresses.forEach(address=>{
+      nca.push(contents.slice(address,address+1));
+    });
 
+    console.log('num category answers:',nca.map(num=>num.toString(10)));
+    /*
+    // number of solutions in category
+    let numOfCategoryAnswersAddresses = [0x100DD, 0x100E9, 0x100F5, 0x10101, 0x1010D, 0x10119, 0x10125, 0x10131];
+    let nca = [];
+    numOfCategoryAnswersAddresses.forEach(address=>{
+      let ncadv = new DataView(reader.result.slice(address,address+1) as ArrayBuffer);
+      nca.push(ncadv.getUint8(0));
+    });
+    console.log('num category answers:',nca.map(num=>num.toString(10)));
+    */
+  }
 
+  replaceCategoryNames(
+    contents: number[],
+    encodedCategories: EncodedCategories) {
+    let categoryNamesStart = 0x1483;
+    let categoryNameLength = 8;
+    let numberOfCategories = 9;
+    let categoryUnusedByte = 0x00;
+  
+    let categoryNames = contents.slice(categoryNamesStart,categoryNamesStart + (categoryNameLength * numberOfCategories));
 
+    console.log('category names:',categoryNames.map(num=>catNameDecodeTable[num]));
+    
+    /*
+    // category names, not working yet...
+    let cnDV = new DataView(reader.result.slice(categoryNamesStart,(categoryNamesStart * categoryNameLength * 9) + 1) as ArrayBuffer);
+    let cnArr = [];
+    for(let i=0; i < (categoryNameLength * 9); i++) {
+      cnArr.push(cnDV.getUint8(i));
+    }
+    // num.toString(16) 
+    console.log('category names:',cnArr.map(num=>catNameDecodeTable[num]));
+    */
+  }
 
+  replaceCategoryNameLengths(
+    contents: number[],
+    encodedCategories: EncodedCategories) {
+    let categoryNameLengthStart = 0x1FAF;
+    let categoryNameLengthEnd = categoryNameLengthStart + 9;
+    const categoryNameLengths = contents.slice(categoryNameLengthStart,categoryNameLengthEnd);
+    let cnlArr = [];
+    for(let i=0; i < 9; i++) {
+      cnlArr.push(categoryNameLengths[i]);
+    }
+    console.log('category name lengths:',categoryNameLengths.map(num=>catNameLengthDecodeTable[num]));
 
-      
-      //console.log('rom:', reader.result.slice(68061,83480));
-    };
-    const text = reader.readAsArrayBuffer(file);
+    //console.log('rom:', reader.result.slice(68061,83480));
+
   }
 
 
   writeRom(id: number) {
-    this.store.selectOnce(ConfigState.config).subscribe(config=>{
+    combineLatest(
+      this.store.selectOnce(RomState.contents),
+      this.store.selectOnce(ConfigState.config))
+    .subscribe(([contents, config])=>{
+      console.log('Store data for Rom Writing:\n', config, contents);
       const game = config.games[id].game;
       const categories = config.games[id].categories;
       const puzzles = config.games[id].puzzles;
-      const encodedPuzzles = this.encodeSolutions(categories, puzzles);
-      console.log(encodedPuzzles);
+
+      const encodedCategories = this.encodeGame(categories, puzzles);
+
+      this.replacePuzzleSolutions(contents, encodedCategories);
+      this.replacePuzzleAddresses(contents, encodedCategories);
+      this.replaceCategoryPointers(contents, encodedCategories);
+      this.replaceNumberOfPuzzlesInCategories(contents, encodedCategories);
+      this.replaceCategoryNames(contents, encodedCategories);
+      this.replaceCategoryNameLengths(contents, encodedCategories);
+      
     });
   }
+
+  
 
   /**
    * Create a data structure from the categories and puzzles
    * containing the encoded text and the address offsets.
    */
-  encodeSolutions(categories: Category[], puzzles: Puzzles) {
+  encodeGame(categories: Category[], puzzles: Puzzles): EncodedCategories {
     // for now just hardcode the starting address
     // might not be needed anymore?
     let address = 0x89CE;
@@ -116,7 +227,7 @@ export class RomService {
    * 
    * Also generate the addess of each puzzle.
    */
-  encodePuzzles(puzzles: Puzzle[]) {
+  encodePuzzles(puzzles: Puzzle[]): EncodedPuzzle[] {
     let address = 0x89CE;
 
     return puzzles.map(puzzle=>{
@@ -150,8 +261,8 @@ export class RomService {
    * defined lookup table to convert the category 
    * names to the necessary encodings.
    */
-  encodeCategoryName(name: string) {
-    return name.split('').map(char=>catNameLookupTable[char]);
+  encodeCategoryName(name: string): number[] {
+    return name.split('').map(char=>catNameEncodeTable[char]);
   }
 
   /**
@@ -221,3 +332,17 @@ export class RomService {
     return newLines;
   }
 }
+
+
+export interface EncodedPuzzle {
+  puzzle: number[];
+  address: number;
+}
+
+export interface EncodedCategory {
+  category: number[];
+  address: number;
+  puzzles: EncodedPuzzle[];
+}
+
+export type EncodedCategories = EncodedCategory[];

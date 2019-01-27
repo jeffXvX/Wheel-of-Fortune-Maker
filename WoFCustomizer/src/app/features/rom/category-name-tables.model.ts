@@ -6,7 +6,7 @@
  * it should never change assuming used against the 
  * same rom or another one that uses the same encoding.
  */
-export const catNameLookupTable = {
+export const catNameEncodeTable = {
     " " : 0xD4,
     "'" : 0xD5,
     "-" : 0xD7,
@@ -36,4 +36,36 @@ export const catNameLookupTable = {
     "X" : 0xFC,
     "Y" : 0xFD,
     "Z" : 0xFE,
+  }
+
+export const catNameDecodeTable = {
+    0xD4 : " ",
+    0xD5 : "'",
+    0xD7 : "-",
+    0xE5 : "A",
+    0xE6 : "B",
+    0xE7 : "C",
+    0xE8 : "D",
+    0xE9 : "E",
+    0xEA : "F",
+    0xEB : "G",
+    0xEC : "H",
+    0xED : "I",
+    0xEE : "J",
+    0xEF : "K",
+    0xF0 : "L",
+    0xF1 : "M",
+    0xF2 : "N",
+    0xF3 : "O",
+    0xF4 : "P",
+    0xF5 : "Q",
+    0xF6 : "R",
+    0xF7 : "S",
+    0xF8 : "T",
+    0xF9 : "U",
+    0xFA : "V",
+    0xFB : "W",
+    0xFC : "X",
+    0xFD : "Y",
+    0xFE : "Z",
   }

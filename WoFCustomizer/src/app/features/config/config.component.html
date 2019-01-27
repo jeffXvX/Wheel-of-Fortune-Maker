@@ -43,6 +43,21 @@
 <mat-divider></mat-divider>
 
 <div>
+
+  <button mat-button 
+    mat-stroked-button
+    (click)="romFileInput.click()">
+    Load Rom
+  </button>
+
+  <mat-form-field>
+      <input matInput 
+        placeholder="Rom Filename" 
+        [value]="romFileName$ | async"
+        (change)="changeConfigFileName($event)"
+        [disabled]="!(configFileNameExists$ | async)">
+  </mat-form-field>
+
   <mat-form-field>
     <mat-select placeholder="Choose Game..." 
       [(value)]="selectedGameIdForRom" 
@@ -50,13 +65,14 @@
       <mat-option *ngFor="let game of games$ | async" [value]="game.id">{{game.name}}</mat-option>
     </mat-select>
   </mat-form-field>
-
+  
+  <!-- [disabled]="!(configFileNameExists$ | async)" -->
   <button mat-button 
     mat-stroked-button
-    [disabled]="!(configFileNameExists$ | async)"
-    (click)="romFileInput.click() || writeRom(selectedGameIdForRom)"
-    >Write Rom
+    (click)="writeRom(selectedGameIdForRom)">
+    Write Rom
   </button>
+
 </div>
 <!-- (click)="writeConfig($event)" -->
 
