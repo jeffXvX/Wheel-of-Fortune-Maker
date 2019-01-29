@@ -3,12 +3,12 @@ import { Store } from '@ngxs/store';
 import { ConfigState } from '../config/config.state';
 import { Category } from '../game/category/category.model';
 import { Puzzles } from '../game/puzzles/puzzles.model';
-import { catNameEncodeTable, catNameDecodeTable } from './category-name-tables.model';
+import { catNameEncodeTable, catNameDecodeTable } from './encoder/category-name-tables.model';
 import { Puzzle } from '../game/puzzle/puzzle.model';
 import { combineLatest, Subject } from 'rxjs';
 import { SetRomContents } from './rom.actions';
 import { RomState } from './rom.state';
-import { catNameLengthDecodeTable } from './category-name-length-tables.model';
+import { catNameLengthDecodeTable } from './encoder/category-name-length-tables.model';
 import { EncodedCategories, EncodedCategory } from './encoder/encoded-categories.model';
 import { ConfigEntryEncoderService } from './encoder/config-entry-encoder.service';
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
@@ -81,8 +81,8 @@ export class RomService {
     allPuzzles = combineUint8Arrays(allPuzzles, unfilledPuzzlesArray.slice(allPuzzles.length,unfilledPuzzlesArray.length));
      
     if(!environment.production) {    
-      console.log('Solutions:\n',Array.from(contents.slice(solutionsStart,solutionsEnd)).map(num=>String.fromCharCode(num)));
-      console.log('All new puzzles:\n',Array.from(allPuzzles).map(num=>String.fromCharCode(num)));
+      console.log('Puzzles:\n',Array.from(contents.slice(solutionsStart,solutionsEnd)).map(num=>String.fromCharCode(num)));
+      console.log('New puzzles:\n',Array.from(allPuzzles).map(num=>String.fromCharCode(num)));
     }
 
     contents.set(allPuzzles,solutionsStart);
@@ -96,40 +96,34 @@ export class RomService {
   replacePuzzlePointers(
     contents: Uint8Array,
     encodedCategories: EncodedCategories) {
-    const solutionPointersStart = 0x101FC;
-    const solutionPointersEnd = solutionPointersStart + 2000;
+    const puzzlePointersStart = 0x101FC;
+    const puzzlePointersEnd = puzzlePointersStart + 2000;
 
     if(!environment.production) {
-      const solutionPointers = contents.slice(solutionPointersStart,solutionPointersEnd);
-      console.log('solution pointers:',Array.from(solutionPointers).map(num=>num.toString(16)));
+      const solutionPointers = contents.slice(puzzlePointersStart,puzzlePointersEnd);
+      console.log('Puzzle pointers:',Array.from(solutionPointers).map(num=>num.toString(16)));
     }
 
-    const addresses = encodedCategories.reduce((addresses: number[], category, idx)=>{
+    let lastCategoryPointer = puzzlePointersStart;
+    const categoryPointers = new Array<number>(9);
+    const addresses = encodedCategories.reduce((addresses: number[], category, i)=>{
+      categoryPointers[i] = lastCategoryPointer;
       addresses.push(...category.puzzles.reduce((addresses: number[], puzzle)=>{
         addresses.push(...this.addressToBytes(puzzle.address));
+        lastCategoryPointer += 2; // each pointer takes up 2 bytes so move ahead 2 bytes to the next puzzle
         return addresses;
       },[]));
       return addresses;
     },[]);
-    addresses.push(...new Array((solutionPointersEnd-solutionPointersStart) - addresses.length).fill(0x00));
-    contents.set(addresses,solutionPointersStart);
+    addresses.push(...new Array((puzzlePointersEnd-puzzlePointersStart) - addresses.length).fill(0x00));
+    contents.set(addresses,puzzlePointersStart);
 
     if(!environment.production) {
-      const solutionPointers = contents.slice(solutionPointersStart,solutionPointersEnd);
-      console.log('solution pointers after changing:',Array.from(solutionPointers).map(num=>num.toString(16)));
+      const solutionPointers = contents.slice(puzzlePointersStart,puzzlePointersEnd);
+      console.log('New puzzle pointers:',Array.from(solutionPointers).map(num=>num.toString(16)));
     }
-  }
 
-  /**
-   * Return an array of 2 bytes represening a 16 bit
-   * pointer from a single 16 bit value.
-   * NES uses opposite endianness so swap the bytes.
-   * @param address The 16 bit input value
-   */
-  addressToBytes(address:number) {
-    const highByte = address & 0x00FF;
-    const lowByte = (address & 0xFF00) >> 8;
-    return [highByte, lowByte]; 
+    return categoryPointers;
   }
 
   /**
@@ -140,26 +134,38 @@ export class RomService {
    */
   replaceCategoryPointers(
     contents: Uint8Array,
-    encodedCategories: EncodedCategories) {
-      let RamAddressOffset = 0x8010; // 32784
-      let categoryPointersStart = 0x101E8;
-      const categoryPointers = contents.slice(categoryPointersStart,categoryPointersStart + 18);
-      console.log('category pointers:', Array.from(categoryPointers).map(num=>num.toString(16)));
-      /*
-      //category pointers?  not sure what these are yet...
-      let categoryPointersStart = 0x101E8;
-      let cp = [];
-      const cpPointers = reader.result.slice(categoryPointersStart,categoryPointersStart + 18) as ArrayBuffer;
-      let cpdv = new DataView(cpPointers);
-      for(let i = 0; i <= 16; i+=2) {
-        cp.push(cpdv.getUint16(i));
+    encodedCategories: EncodedCategories,
+    categoryPointers: number[]) {
+      const RamAddressOffset = 0x8010; // 32784
+      const solutionPointersStart = 0x101FC;
+      const categoryPointersStart = 0x101E8;
+      const categoryPointersEnd = categoryPointersStart + 18;
+      
+      if(!environment.production){
+        console.log('Passed category pointers: ', categoryPointers.map(num=>(num - RamAddressOffset).toString(16)));
+        let romCategoryPointers = Array.from(contents.slice(categoryPointersStart,categoryPointersEnd)).map(num=>num.toString(16));
+        console.log('Rom Category Pointers:', romCategoryPointers);
       }
-      console.log('category start pointers:',cp.map(num=>num.toString(16)));
 
-      //offset because the pointer is pointing to the address in ram, not in the rom.  Need to stop forgetting that...
-      let fpdv = new DataView(reader.result.slice(33260 + RamAddressOffset,33262 + RamAddressOffset) as ArrayBuffer);
-
+      const fixedPointers = categoryPointers.reduce((pointers: number[], pointer)=>{
+        pointers.push(...this.addressToBytes(pointer - RamAddressOffset));
+        return pointers;
+      },[]);
+      
+      /*
+      const catPointers = encodedCategories.reduce((catPointers: Uint8Array, category, i)=>{
+        console.log('cat add math: ',category.address.toString(16),' + ', RamAddressOffset.toString(16), ' = ',(category.address + RamAddressOffset).toString(16));
+        catPointers.set(this.addressToBytes(category.address + RamAddressOffset), i * 2);
+        return catPointers;
+      },new Uint8Array(categoryPointersEnd-categoryPointersStart));
       */
+
+      contents.set(fixedPointers,categoryPointersStart);
+
+      if(!environment.production) {
+        let romCategoryPointers = Array.from(contents.slice(categoryPointersStart,categoryPointersEnd)).map(num=>num.toString(16));
+        console.log('New Category Pointers:', romCategoryPointers);
+      }
   }
 
   /**
@@ -171,15 +177,16 @@ export class RomService {
   replaceNumberOfPuzzlesInCategories(
     contents: Uint8Array,
     encodedCategories: EncodedCategories) {
-    let numOfCategoryAnswersAddresses = [0x100DD, 0x100E9, 0x100F5, 0x10101, 0x1010D, 0x10119, 0x10125, 0x10131];
+    const numOfCategoryAnswersAddresses = [0x100DD, 0x100E9, 0x100F5, 0x10101, 0x1010D, 0x10119, 0x10125, 0x10131];
 
-    let nca = [];
-    numOfCategoryAnswersAddresses.forEach(address=>{
-      if(!environment.production){
+    if(!environment.production){
+      let nca = [];
+      numOfCategoryAnswersAddresses.forEach(address=>{
         console.log('grabbing address ',address,' to ',contents.slice(address,address+1));
-      }
-      nca.push(contents.slice(address,address+1));
-    });
+        nca.push(contents.slice(address,address+1));
+      });
+      console.log('num category answers:',nca.map(num=>num.toString(10)));
+    }
 
     const sizes = encodedCategories.reduce((sizes:number[], category)=>{
       sizes.push(category.puzzles.length);
@@ -187,7 +194,6 @@ export class RomService {
     },[]);
 
     if(!environment.production){
-      console.log('num category answers:',nca.map(num=>num.toString(10)));
       console.log('calculated sizes:\n',sizes);
     }
 
@@ -207,25 +213,31 @@ export class RomService {
   replaceCategoryNames(
     contents: Uint8Array,
     encodedCategories: EncodedCategories) {
-    let categoryNamesStart = 0x1483;
-    let categoryNameLength = 8;
-    let numberOfCategories = 9;
-    let categoryUnusedByte = 0x00;
-  
-    let categoryNames = contents.slice(categoryNamesStart,categoryNamesStart + (categoryNameLength * numberOfCategories));
+    const categoryNamesStart = 0x1483;
+    const categoryNameLength = 8;
+    const numberOfCategories = 9;
+    const categoryUnusedByte = 0x00;
+    const categoryNamesEnd = categoryNamesStart + (categoryNameLength * numberOfCategories);
 
-    console.log('category names:',Array.from(categoryNames).map(num=>catNameDecodeTable[num]));
-    
-    /*
-    // category names, not working yet...
-    let cnDV = new DataView(reader.result.slice(categoryNamesStart,(categoryNamesStart * categoryNameLength * 9) + 1) as ArrayBuffer);
-    let cnArr = [];
-    for(let i=0; i < (categoryNameLength * 9); i++) {
-      cnArr.push(cnDV.getUint8(i));
+    if(!environment.production){
+      let categoryNames = contents.slice(categoryNamesStart,categoryNamesEnd);
+      console.log('category names:',Array.from(categoryNames).map(num=>catNameDecodeTable[num]));
     }
-    // num.toString(16) 
-    console.log('category names:',cnArr.map(num=>catNameDecodeTable[num]));
-    */
+
+    const categoryData = new Uint8Array(categoryNamesEnd-categoryNamesStart).fill(categoryUnusedByte);
+    const encodedCategoryData = encodedCategories.reduce((categoryData: Uint8Array,category)=>{
+      if(!environment.production){ console.log('category name:',category.category); }
+      return combineUint8Arrays(categoryData,category.category);
+    }, new Uint8Array());
+
+    categoryData.set(encodedCategoryData);
+
+    contents.set(categoryData,categoryNamesStart);
+
+    if(!environment.production){
+      let categoryNames = contents.slice(categoryNamesStart,categoryNamesEnd);
+      console.log('changed category names:',Array.from(categoryNames).map(num=>catNameDecodeTable[num]));
+    }
   }
 
   /**
@@ -236,17 +248,26 @@ export class RomService {
   replaceCategoryNameLengths(
     contents: Uint8Array,
     encodedCategories: EncodedCategories) {
-    let categoryNameLengthStart = 0x1FAF;
-    let categoryNameLengthEnd = categoryNameLengthStart + 9;
-    const categoryNameLengths = contents.slice(categoryNameLengthStart,categoryNameLengthEnd);
-    let cnlArr = [];
-    for(let i=0; i < 9; i++) {
-      cnlArr.push(categoryNameLengths[i]);
+    const categoryNameLengthsStart = 0x1FAF;
+    const categoryNameLengthsEnd = categoryNameLengthsStart + 9;
+
+    if(!environment.production) {
+      let categoryNameLengths = contents.slice(categoryNameLengthsStart,categoryNameLengthsEnd);
+      console.log('category name lengths:',categoryNameLengths.map(num=>catNameLengthDecodeTable[num]));
     }
-    console.log('category name lengths:',categoryNameLengths.map(num=>catNameLengthDecodeTable[num]));
 
-    //console.log('rom:', reader.result.slice(68061,83480));
+    const nameLengths = encodedCategories.reduce((lengths:Uint8Array,category, i)=>{
+      lengths[i] = category.nameLength;
+      console.log('building lengths:\n',lengths);
+      return lengths;
+    },new Uint8Array(categoryNameLengthsEnd- categoryNameLengthsStart));
+    
+    contents.set(nameLengths,categoryNameLengthsStart);
 
+    if(!environment.production) {
+      let categoryNameLengths = contents.slice(categoryNameLengthsStart,categoryNameLengthsEnd);
+      console.log('new category name lengths:',categoryNameLengths.map(num=>catNameLengthDecodeTable[num]));
+    }
   }
 
   /**
@@ -266,26 +287,40 @@ export class RomService {
       const encodedCategories = this.encoder.encodeGame(categories, puzzles);
 
       this.replacePuzzleSolutions(contents, encodedCategories);
-      this.replacePuzzlePointers(contents, encodedCategories);
-      this.replaceCategoryPointers(contents, encodedCategories);
+      const categoryPointers = this.replacePuzzlePointers(contents, encodedCategories);
+      this.replaceCategoryPointers(contents, encodedCategories, categoryPointers);
       this.replaceNumberOfPuzzlesInCategories(contents, encodedCategories);
       this.replaceCategoryNames(contents, encodedCategories);
       this.replaceCategoryNameLengths(contents, encodedCategories);
-    
-      this.writeBlob();
+      this.writeBlob(contents);
     });
   }
 
-  writeBlob() {
-    this.store.selectOnce(RomState.contents).subscribe(rom=>{
-      let romBlob = new Blob([rom], {type: 'application/octet-stream'});
-      if (this.romFile !== null) {
-        window.URL.revokeObjectURL(this.romFile);
-      }
-      this.romFile = window.URL.createObjectURL(romBlob);
-      this.sanitizedRomFileSubject.next(this.sanitizer.bypassSecurityTrustUrl(this.romFile));
-    }); 
+  /**
+   * Write a byte array to a blob and push the result out 
+   * through the subject to listeners.
+   */
+  writeBlob(contents: Uint8Array) {
+    let romBlob = new Blob([contents], {type: 'application/octet-stream'});
+    if (this.romFile !== null) {
+      window.URL.revokeObjectURL(this.romFile);
+    }
+    this.romFile = window.URL.createObjectURL(romBlob);
+    this.sanitizedRomFileSubject.next(this.sanitizer.bypassSecurityTrustUrl(this.romFile));
   }  
+
+  /**
+   * Return an array of 2 bytes represening a 16 bit
+   * pointer from a single 16 bit value.
+   * NES uses opposite endianness so swap the bytes.
+   * @param address The 16 bit input value
+   */
+  addressToBytes(address:number) {
+    const highByte = address & 0x00FF;
+    const lowByte = (address & 0xFF00) >> 8;
+    return [highByte, lowByte]; 
+  }
+
 
 }
 

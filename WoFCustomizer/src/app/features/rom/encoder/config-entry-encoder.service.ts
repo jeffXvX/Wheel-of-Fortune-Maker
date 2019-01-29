@@ -4,8 +4,9 @@ import { Puzzles } from '../../game/puzzles/puzzles.model';
 import { EncodedCategories } from './encoded-categories.model';
 import { Puzzle } from '../../game/puzzle/puzzle.model';
 import { EncodedPuzzle } from './encoded-puzzles.model';
-import { catNameEncodeTable } from '../category-name-tables.model';
+import { catNameEncodeTable } from './category-name-tables.model';
 import { combineUint8Arrays } from '../typed-array-helpers/combine-arrays.fn';
+import { catNameLengthEncodeTable } from './category-name-length-tables.model';
 
 @Injectable()
 export class ConfigEntryEncoderService {
@@ -21,11 +22,19 @@ export class ConfigEntryEncoderService {
     // might not be needed anymore?
     let address = 0x89CE;
 
-    return categories.map(category=>({
-        category: this.encodeCategoryName(category.name),
-        address: address,
-        puzzles: this.encodePuzzles(puzzles[category.id]) 
-      }));
+    return categories.map(category=>{
+      const catAddress = address;
+      console.log('catAddress: ',catAddress.toString(16));
+      const encodedCategory = this.encodeCategoryName(category.name);
+      const encodedPuzzles = this.encodePuzzles(puzzles[category.id], address);
+      address = encodedPuzzles.nextAddress;
+
+      return {
+        ...encodedCategory,
+        address: catAddress,
+        puzzles: encodedPuzzles.puzzles
+      }
+    });
   }
 
   /**
@@ -36,10 +45,13 @@ export class ConfigEntryEncoderService {
    * 
    * Also generate the addess of each puzzle.
    */
-  encodePuzzles(puzzles: Puzzle[]): EncodedPuzzle[] {
-    let address = 0x89CE;
+  encodePuzzles(puzzles: Puzzle[], initialAddress: number): {
+    puzzles: EncodedPuzzle[],
+    nextAddress: number 
+  } {
+    let address = initialAddress;
 
-    return puzzles.map(puzzle=>{
+    const encodedPuzzles = puzzles.map(puzzle=>{
       let lines = [
         this.convertStringToCharacterCodes(puzzle.line1),
         this.convertStringToCharacterCodes(puzzle.line2),
@@ -58,9 +70,13 @@ export class ConfigEntryEncoderService {
       }
 
       address = this.generateNextAddress(address, lines);
-
       return encodedPuzzle;
-    })
+    });
+
+    return { 
+      puzzles: encodedPuzzles,
+      nextAddress: address+1
+    }
   }
 
   /**
@@ -68,9 +84,21 @@ export class ConfigEntryEncoderService {
    * ASCII with high bits set in the rom so use the 
    * defined lookup table to convert the category 
    * names to the necessary encodings.
+   * 
+   * A category should always use 8 bytes with unused
+   * space being set to 0x00.
    */
-  encodeCategoryName(name: string): Uint8Array {
-    return new Uint8Array(name.split('').map(char=>catNameEncodeTable[char]));
+  encodeCategoryName(name: string): { 
+    category: Uint8Array, 
+    nameLength: number } {
+    const categoryNameLength = 8;
+    const categoryUnusedByte = 0x00;
+    const category = new Uint8Array(categoryNameLength).fill(categoryUnusedByte);
+    category.set(name.split('').map(char=>catNameEncodeTable[char]));
+    return { 
+      category: category, 
+      nameLength: catNameLengthEncodeTable[name.length] 
+    };
   }
 
   /**
