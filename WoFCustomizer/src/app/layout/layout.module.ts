@@ -6,6 +6,7 @@ import { GameModule } from '../features/game/game.module';
 import { FilesModule } from '../features/files/files.module';
 import { ConfigModule } from '../features/config/config.module';
 import { HomeModule } from '../features/home/home.module';
+import { RomModule } from '../features/rom/rom.module';
 
 @NgModule({
   declarations: [LayoutComponent],
@@ -15,7 +16,8 @@ import { HomeModule } from '../features/home/home.module';
     HomeModule,
     GameModule,
     FilesModule,
-    ConfigModule
+    ConfigModule,
+    RomModule
   ],
   exports: [LayoutComponent]
 })

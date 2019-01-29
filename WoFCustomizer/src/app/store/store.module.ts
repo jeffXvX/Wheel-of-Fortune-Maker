@@ -4,6 +4,7 @@ import { GameState } from '../features/game/game.state';
 import { CategoriesState } from '../features/game/categories/categories.state';
 import { PuzzlesState } from '../features/game/puzzles/puzzles.state';
 import { ConfigState } from '../features/config/config.state';
+import { RomState } from '../features/rom/rom.state';
 
 @NgModule({
   declarations: [],
@@ -13,6 +14,7 @@ import { ConfigState } from '../features/config/config.state';
       GameState,
       CategoriesState,
       PuzzlesState,
+      RomState
     ])    
   ]
 })
