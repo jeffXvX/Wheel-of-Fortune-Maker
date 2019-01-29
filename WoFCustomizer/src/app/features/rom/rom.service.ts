@@ -5,40 +5,52 @@ import { Category } from '../game/category/category.model';
 import { Puzzles } from '../game/puzzles/puzzles.model';
 import { catNameEncodeTable, catNameDecodeTable } from './category-name-tables.model';
 import { Puzzle } from '../game/puzzle/puzzle.model';
-import { combineLatest } from 'rxjs';
+import { combineLatest, Subject } from 'rxjs';
 import { SetRomContents } from './rom.actions';
 import { RomState } from './rom.state';
 import { catNameLengthDecodeTable } from './category-name-length-tables.model';
-
+import { EncodedCategories, EncodedCategory } from './encoder/encoded-categories.model';
+import { ConfigEntryEncoderService } from './encoder/config-entry-encoder.service';
+import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
+import { EncodedPuzzle } from './encoder/encoded-puzzles.model';
+import { combineUint8Arrays } from './typed-array-helpers/combine-arrays.fn';
+import { maxCharacters } from '../game/game.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class RomService {
+  sanitizedRomFileSubject = new Subject<SafeUrl>();
+  romFile: string;
 
-  constructor(private store: Store) { }
+  constructor(
+    private store: Store, 
+    private encoder: ConfigEntryEncoderService, 
+    private sanitizer: DomSanitizer) { }
 
+  /**
+   * Read the given file into the store so that 
+   * it can later be modified and written back out.
+   * @param file The file to read.
+   */
   readRom(file: File) {
     const reader = new FileReader();
     reader.onloadend = pe => {
-
       const RomFileBuffer = reader.result as ArrayBuffer;
-
       const contents = this.convertArrayBufferToArray(RomFileBuffer);
       console.log("file contents:\n",contents);
       this.store.dispatch(new SetRomContents({ contents: contents }));
-
-
-      /*
-      
-
-
-
-      */
     };
     const text = reader.readAsArrayBuffer(file);
   }
 
+  /**
+   * Convert the type of the file contents into an 
+   * editable array.
+   * @param buffer The buffer to convert to an array.
+   */
   convertArrayBufferToArray(buffer: ArrayBuffer) {
-    const array = new Array<number>(buffer.byteLength);
+    //const array = new Array<number>(buffer.byteLength);
+    const array = new Uint8Array(buffer.byteLength);
     const dataView = new DataView(buffer);
     for(let i=0;i<array.length;i++) {
       array[i] = dataView.getUint8(i);
@@ -46,58 +58,93 @@ export class RomService {
     return array;
   }
 
+  /**
+   * Replace the puzzle solutions text in the rom
+   * with the solutions specified by a config entry.
+   * @param contents The rom file contents
+   * @param encodedCategories The encoded config entry 
+   */
   replacePuzzleSolutions(
-    contents: number[], 
+    contents: Uint8Array, 
     encodedCategories: EncodedCategories) {
     const solutionsStart = 0x109DE;
-    const solutionsEnd = 0x14618; 
-    
-    contents.slice(solutionsStart,solutionsEnd)
+    const solutionsEnd = 0x109DE + maxCharacters;
+    const unusedPuzzleSpace = 0xFF;
+    const unfilledPuzzlesArray = new Uint8Array(maxCharacters).fill(unusedPuzzleSpace);
 
-    console.log('Solutions:\n',contents.slice(solutionsStart,solutionsEnd).map(num=>String.fromCharCode(num)));
+    let allPuzzles = encodedCategories.reduce(
+      (puzzles: Uint8Array, category: EncodedCategory)=>combineUint8Arrays(category.puzzles.reduce(
+        (puzzles: Uint8Array, puzzle: EncodedPuzzle)=>combineUint8Arrays(puzzles, puzzle.puzzle),
+        new Uint8Array()),puzzles),
+      new Uint8Array());
 
-    //console.log('puzzle solutions:',String.fromCharCode(...pa));
-    //const puzzles = reader.result.slice(solutionsStart,solutionsEnd) as ArrayBuffer;      
-    
-    //let dv = new DataView(puzzles);
-    
-    //let pa = [];
-    /*
-    for(let i = solutionsStart; i < solutionsEnd - solutionsStart; i++) {
-      pa.push(dv.getUint8(i));
+    allPuzzles = combineUint8Arrays(allPuzzles, unfilledPuzzlesArray.slice(allPuzzles.length,unfilledPuzzlesArray.length));
+     
+    if(!environment.production) {    
+      console.log('Solutions:\n',Array.from(contents.slice(solutionsStart,solutionsEnd)).map(num=>String.fromCharCode(num)));
+      console.log('All new puzzles:\n',Array.from(allPuzzles).map(num=>String.fromCharCode(num)));
     }
-    console.log('puzzle solutions:',String.fromCharCode(...pa));
-    */
 
+    contents.set(allPuzzles,solutionsStart);
   }
 
-  replacePuzzleAddresses(
-    contents: number[],
+  /**
+   * Replace the pointers to the first characters of each puzzle.
+   * @param contents The rom file contents
+   * @param encodedCategories The encoded config entry 
+   */
+  replacePuzzlePointers(
+    contents: Uint8Array,
     encodedCategories: EncodedCategories) {
-    let solutionPointersStart = 0x101FC;
-    const solutionPointers = contents.slice(solutionPointersStart,solutionPointersStart + 2000);
-    console.log('solution pointers:',solutionPointers.map(num=>num.toString(16)));
+    const solutionPointersStart = 0x101FC;
+    const solutionPointersEnd = solutionPointersStart + 2000;
 
-    /*
-      // solution addresses
-      let solutionPointersStart = 0x101FC;
-      let sa = [];
-      const sapuzzles = reader.result.slice(solutionPointersStart,solutionPointersStart + 2002) as ArrayBuffer;
-      let sadv = new DataView(sapuzzles);
-      for(let i = 0; i <= 2000; i+=2) {
-        sa.push(sadv.getUint16(i));
-      }
-      console.log('solution pointers:',sa.map(num=>num.toString(16)));
-    */
+    if(!environment.production) {
+      const solutionPointers = contents.slice(solutionPointersStart,solutionPointersEnd);
+      console.log('solution pointers:',Array.from(solutionPointers).map(num=>num.toString(16)));
+    }
+
+    const addresses = encodedCategories.reduce((addresses: number[], category, idx)=>{
+      addresses.push(...category.puzzles.reduce((addresses: number[], puzzle)=>{
+        addresses.push(...this.addressToBytes(puzzle.address));
+        return addresses;
+      },[]));
+      return addresses;
+    },[]);
+    addresses.push(...new Array((solutionPointersEnd-solutionPointersStart) - addresses.length).fill(0x00));
+    contents.set(addresses,solutionPointersStart);
+
+    if(!environment.production) {
+      const solutionPointers = contents.slice(solutionPointersStart,solutionPointersEnd);
+      console.log('solution pointers after changing:',Array.from(solutionPointers).map(num=>num.toString(16)));
+    }
   }
 
+  /**
+   * Return an array of 2 bytes represening a 16 bit
+   * pointer from a single 16 bit value.
+   * NES uses opposite endianness so swap the bytes.
+   * @param address The 16 bit input value
+   */
+  addressToBytes(address:number) {
+    const highByte = address & 0x00FF;
+    const lowByte = (address & 0xFF00) >> 8;
+    return [highByte, lowByte]; 
+  }
+
+  /**
+   * Replace the category pointers to the first puzzle pointers 
+   * representing the first puzzle for a particular category.
+   * @param contents The rom file contents
+   * @param encodedCategories The encoded config entry 
+   */
   replaceCategoryPointers(
-    contents: number[],
+    contents: Uint8Array,
     encodedCategories: EncodedCategories) {
       let RamAddressOffset = 0x8010; // 32784
       let categoryPointersStart = 0x101E8;
       const categoryPointers = contents.slice(categoryPointersStart,categoryPointersStart + 18);
-      console.log('category pointers:',categoryPointers.map(num=>num.toString(16)));
+      console.log('category pointers:', Array.from(categoryPointers).map(num=>num.toString(16)));
       /*
       //category pointers?  not sure what these are yet...
       let categoryPointersStart = 0x101E8;
@@ -115,31 +162,50 @@ export class RomService {
       */
   }
 
+  /**
+   * Replace the entries that list how many puzzles are in a particular
+   * category. 
+   * @param contents The rom file contents
+   * @param encodedCategories The encoded config entry 
+   */
   replaceNumberOfPuzzlesInCategories(
-    contents: number[],
+    contents: Uint8Array,
     encodedCategories: EncodedCategories) {
     let numOfCategoryAnswersAddresses = [0x100DD, 0x100E9, 0x100F5, 0x10101, 0x1010D, 0x10119, 0x10125, 0x10131];
 
     let nca = [];
     numOfCategoryAnswersAddresses.forEach(address=>{
+      if(!environment.production){
+        console.log('grabbing address ',address,' to ',contents.slice(address,address+1));
+      }
       nca.push(contents.slice(address,address+1));
     });
 
-    console.log('num category answers:',nca.map(num=>num.toString(10)));
-    /*
-    // number of solutions in category
-    let numOfCategoryAnswersAddresses = [0x100DD, 0x100E9, 0x100F5, 0x10101, 0x1010D, 0x10119, 0x10125, 0x10131];
-    let nca = [];
-    numOfCategoryAnswersAddresses.forEach(address=>{
-      let ncadv = new DataView(reader.result.slice(address,address+1) as ArrayBuffer);
-      nca.push(ncadv.getUint8(0));
-    });
-    console.log('num category answers:',nca.map(num=>num.toString(10)));
-    */
+    const sizes = encodedCategories.reduce((sizes:number[], category)=>{
+      sizes.push(category.puzzles.length);
+      return sizes;
+    },[]);
+
+    if(!environment.production){
+      console.log('num category answers:',nca.map(num=>num.toString(10)));
+      console.log('calculated sizes:\n',sizes);
+    }
+
+    numOfCategoryAnswersAddresses.forEach((addr,idx)=>{
+      contents[addr] = sizes[idx];
+      if(!environment.production){
+        console.log('setting address ',addr,' to ',contents.slice(addr,addr+1));
+      }
+    })
   }
 
+  /**
+   * Replace the category names with the config entry category names. 
+   * @param contents The rom file contents
+   * @param encodedCategories The encoded config entry 
+   */
   replaceCategoryNames(
-    contents: number[],
+    contents: Uint8Array,
     encodedCategories: EncodedCategories) {
     let categoryNamesStart = 0x1483;
     let categoryNameLength = 8;
@@ -148,7 +214,7 @@ export class RomService {
   
     let categoryNames = contents.slice(categoryNamesStart,categoryNamesStart + (categoryNameLength * numberOfCategories));
 
-    console.log('category names:',categoryNames.map(num=>catNameDecodeTable[num]));
+    console.log('category names:',Array.from(categoryNames).map(num=>catNameDecodeTable[num]));
     
     /*
     // category names, not working yet...
@@ -162,8 +228,13 @@ export class RomService {
     */
   }
 
+  /**
+   * Replace the category name lengths with the new lengths.
+   * @param contents The rom file contents
+   * @param encodedCategories The encoded config entry 
+   */
   replaceCategoryNameLengths(
-    contents: number[],
+    contents: Uint8Array,
     encodedCategories: EncodedCategories) {
     let categoryNameLengthStart = 0x1FAF;
     let categoryNameLengthEnd = categoryNameLengthStart + 9;
@@ -178,7 +249,11 @@ export class RomService {
 
   }
 
-
+  /**
+   * Replace a previously read in rom file's contents
+   * with the data represented by a particular loaded config.
+   * @param id The id of the config to replace the roms contents with.
+   */
   writeRom(id: number) {
     combineLatest(
       this.store.selectOnce(RomState.contents),
@@ -188,161 +263,29 @@ export class RomService {
       const game = config.games[id].game;
       const categories = config.games[id].categories;
       const puzzles = config.games[id].puzzles;
-
-      const encodedCategories = this.encodeGame(categories, puzzles);
+      const encodedCategories = this.encoder.encodeGame(categories, puzzles);
 
       this.replacePuzzleSolutions(contents, encodedCategories);
-      this.replacePuzzleAddresses(contents, encodedCategories);
+      this.replacePuzzlePointers(contents, encodedCategories);
       this.replaceCategoryPointers(contents, encodedCategories);
       this.replaceNumberOfPuzzlesInCategories(contents, encodedCategories);
       this.replaceCategoryNames(contents, encodedCategories);
       this.replaceCategoryNameLengths(contents, encodedCategories);
-      
+    
+      this.writeBlob();
     });
   }
 
-  
-
-  /**
-   * Create a data structure from the categories and puzzles
-   * containing the encoded text and the address offsets.
-   */
-  encodeGame(categories: Category[], puzzles: Puzzles): EncodedCategories {
-    // for now just hardcode the starting address
-    // might not be needed anymore?
-    let address = 0x89CE;
-
-    return categories.map(category=>({
-        category: this.encodeCategoryName(category.name),
-        address: address,
-        puzzles: this.encodePuzzles(puzzles[category.id]) 
-      }));
-  }
-
-  /**
-   * Encode the puzzle solutions by setting the high bit 
-   * on the last character of each line and also setting
-   * the high bit on the second to last character of the
-   * last line with values.
-   * 
-   * Also generate the addess of each puzzle.
-   */
-  encodePuzzles(puzzles: Puzzle[]): EncodedPuzzle[] {
-    let address = 0x89CE;
-
-    return puzzles.map(puzzle=>{
-      let lines = [
-        this.convertStringToCharacterCodes(puzzle.line1),
-        this.convertStringToCharacterCodes(puzzle.line2),
-        this.convertStringToCharacterCodes(puzzle.line3),
-        this.convertStringToCharacterCodes(puzzle.line4)
-      ];
-
-      lines = this.setLastHighBits(lines);
-      lines = this.setSecondToLastHighBitOnLastLine(lines);
-
-      const encodedPuzzle = {
-        puzzle: lines.reduce((puzzle: number[], line: number[])=>{
-            puzzle.push(...line)
-            return puzzle;
-          },[]),
-        address: address
+  writeBlob() {
+    this.store.selectOnce(RomState.contents).subscribe(rom=>{
+      let romBlob = new Blob([rom], {type: 'application/octet-stream'});
+      if (this.romFile !== null) {
+        window.URL.revokeObjectURL(this.romFile);
       }
+      this.romFile = window.URL.createObjectURL(romBlob);
+      this.sanitizedRomFileSubject.next(this.sanitizer.bypassSecurityTrustUrl(this.romFile));
+    }); 
+  }  
 
-      address = this.generateNextAddress(address, lines);
-
-      return encodedPuzzle;
-    })
-  }
-
-  /**
-   * Category names are not stored as plain AsCII or 
-   * ASCII with high bits set in the rom so use the 
-   * defined lookup table to convert the category 
-   * names to the necessary encodings.
-   */
-  encodeCategoryName(name: string): number[] {
-    return name.split('').map(char=>catNameEncodeTable[char]);
-  }
-
-  /**
-   * Generate the address for the next puzzle based on 
-   * the previous starting address and the puzzle solution.
-   */
-  generateNextAddress(startAddress: number, puzzle: number[][]) {
-    return puzzle.reduce((length:number, line: number[])=>
-      length + line.length,
-      startAddress);
-  }
-
-  /**
-   * Convert a string to an integer array representation
-   */
-  convertStringToCharacterCodes(str: string) {
-    return str.split('').map(s=>s.charCodeAt(0));
-  }
-
-  /**
-   * Set the high bit of the last character of every line.
-   */
-  setLastHighBit(array: number[]) {
-    const newArray = [...array];
-    if(newArray.length >0) {
-      newArray[newArray.length-1] = newArray[newArray.length-1] | 0x80;
-    }
-    return newArray;
-  }
-
-  /**
-   * Set the last high bit of each inner array of numbers.
-   */
-  setLastHighBits(arrays: number[][]) {
-    const newArrays: number[][] = [];
-    arrays.forEach(array=>{
-      newArrays.push(this.setLastHighBit(array));
-    });
-    return newArrays;
-  }
-
-  /**
-   * Set the high bit on the second to last character of the 
-   * last line that has characters.
-   * 
-   * It is an error for the last line to have a single character
-   * and for no line to have any characters.
-   */
-  setSecondToLastHighBitOnLastLine(lines: number[][]) {
-    let lastLine: number[];
-
-    const newLines: number[][] = [...lines.map(line=>[...line])];
-
-    for(let i=newLines.length-1; i >= 0; i--) {
-      if(newLines[i].length > 1) {
-        newLines[i][newLines[i].length-2] = newLines[i][newLines[i].length-2] | 0x80;
-        break;
-      }
-      else if(newLines[i].length === 1) {
-        console.error('Last line has only 1 character');
-      }
-      if(i === 0) {
-        console.error('Puzzle has no solution');
-      }
-    }
-
-    return newLines;
-  }
 }
 
-
-export interface EncodedPuzzle {
-  puzzle: number[];
-  address: number;
-}
-
-export interface EncodedCategory {
-  category: number[];
-  address: number;
-  puzzles: EncodedPuzzle[];
-}
-
-export type EncodedCategories = EncodedCategory[];

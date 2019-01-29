@@ -1,5 +1,5 @@
 export interface Rom {
-    contents: number[];
+    contents: Uint8Array;
 }
 
-export const defaultRom = ():Rom => ({ contents: [] });
+export const defaultRom = ():Rom => ({ contents: new Uint8Array() });

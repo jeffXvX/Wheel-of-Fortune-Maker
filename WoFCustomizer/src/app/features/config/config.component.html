@@ -44,34 +44,43 @@
 
 <div>
 
-  <button mat-button 
-    mat-stroked-button
-    (click)="romFileInput.click()">
-    Load Rom
-  </button>
+  <div>
 
-  <mat-form-field>
-      <input matInput 
-        placeholder="Rom Filename" 
-        [value]="romFileName$ | async"
-        (change)="changeConfigFileName($event)"
-        [disabled]="!(configFileNameExists$ | async)">
-  </mat-form-field>
+    <button mat-button 
+      mat-stroked-button
+      (click)="romFileInput.click()">
+      Load Rom
+    </button>
 
-  <mat-form-field>
-    <mat-select placeholder="Choose Game..." 
-      [(value)]="selectedGameIdForRom" 
-      [disabled]="!(games$ | async)">
-      <mat-option *ngFor="let game of games$ | async" [value]="game.id">{{game.name}}</mat-option>
-    </mat-select>
-  </mat-form-field>
-  
-  <!-- [disabled]="!(configFileNameExists$ | async)" -->
-  <button mat-button 
-    mat-stroked-button
-    (click)="writeRom(selectedGameIdForRom)">
-    Write Rom
-  </button>
+    <mat-form-field>
+        <input matInput 
+          placeholder="Rom Filename" 
+          [value]="romFileName$ | async"
+          (change)="changeConfigFileName($event)"
+          [disabled]="!(configFileNameExists$ | async)">
+    </mat-form-field>
+
+  </div>
+
+  <div>
+
+    <mat-form-field>
+      <mat-select placeholder="Choose Game..." 
+        [(value)]="selectedGameIdForRom" 
+        [disabled]="!(games$ | async)">
+        <mat-option *ngFor="let game of games$ | async" [value]="game.id">{{game.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    
+    <!-- [disabled]="!(configFileNameExists$ | async)" -->
+    <button mat-button 
+      mat-stroked-button
+      [disabled]="!(romIsLoaded$ | async)"
+      (click)="writeRom(selectedGameIdForRom)">
+      Write Rom
+    </button>
+
+  </div>
 
 </div>
 <!-- (click)="writeConfig($event)" -->
@@ -99,3 +108,9 @@
   type="file" 
   (change)="openRom($event)" 
   style="display:none; height:0; width:0;"/>
+<a #romDownloadLink
+  type="file"
+  [download]="romFileName$ | async" 
+  [href]="sanitizedRomFile$ | async" 
+  style="display:none; height:0; width:0;">
+</a>

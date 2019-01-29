@@ -14,6 +14,7 @@ import { RomService } from '../rom/rom.service';
 })
 export class ConfigComponent implements OnInit {
   @ViewChild('configDownloadLink') configDownloadLink: ElementRef;
+  @ViewChild('romDownloadLink') romDownloadLink: ElementRef;
 
   config$: Observable<WoFConfig>;
   games$: Observable<Game[]>;
@@ -24,6 +25,9 @@ export class ConfigComponent implements OnInit {
   selectedGameId: number;
 
   romFileName$ = new Subject<string>();
+  romIsLoaded$: Observable<boolean>;
+  sanitizedRomFile$: Observable<SafeUrl>;  
+
 
   selectedGameIdForRom: number;
 
@@ -38,6 +42,7 @@ export class ConfigComponent implements OnInit {
     this.config$ = this.configService.config$;
     this.games$ = this.configService.games$;
     this.lastId$ = this.configService.lastId$;
+    this.romIsLoaded$ = this.configService.romIsLoaded$;
   }
 
   ngOnInit() {
@@ -49,6 +54,14 @@ export class ConfigComponent implements OnInit {
             });
         }));
 
+    this.sanitizedRomFile$ = this.romService.
+      sanitizedRomFileSubject.pipe(
+        tap(rom=>{
+            setTimeout(_=>{
+              (this.romDownloadLink.nativeElement as HTMLAnchorElement).click();
+            });
+        }));
+  
     this.configFileNameExists$ = this.configFileName$.pipe(
       map(name=>name && name.length > 0)
     );

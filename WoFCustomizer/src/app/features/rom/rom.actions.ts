@@ -1,6 +1,6 @@
 export class SetRomContents {
     static type = "[Rom] Set Contents";
-    constructor(public payload: {contents: number[]} ) {}    
+    constructor(public payload: {contents: Uint8Array} ) {}    
 }
 
 export class ClearRomContents {

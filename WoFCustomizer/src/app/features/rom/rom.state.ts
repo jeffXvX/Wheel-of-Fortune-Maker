@@ -11,10 +11,14 @@ export class RomState {
     return state.contents;
   }
 
+  @Selector() static isLoaded(state: Rom) {
+    return state.contents.length > 0;
+  }
+
   @Action(SetRomContents)
   SetRomContents(ctx: StateContext<Rom>, action: SetRomContents) {
     const newState = {...ctx.getState()};
-    newState.contents = [...action.payload.contents];
+    newState.contents = new Uint8Array(action.payload.contents);
     console.log("Setting rom contenst:\n",newState);
     ctx.setState(newState);
   }
@@ -22,6 +26,6 @@ export class RomState {
   @Action(ClearRomContents)
   ClearRomContents(ctx: StateContext<Rom>) {
     const newState = {...ctx.getState()};
-    newState.contents = [];
+    newState.contents = new Uint8Array();
     ctx.setState(newState);  }
 }
