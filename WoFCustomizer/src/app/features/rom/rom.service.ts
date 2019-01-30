@@ -73,9 +73,13 @@ export class RomService {
     const unfilledPuzzlesArray = new Uint8Array(maxCharacters).fill(unusedPuzzleSpace);
 
     let allPuzzles = encodedCategories.reduce(
-      (puzzles: Uint8Array, category: EncodedCategory)=>combineUint8Arrays(category.puzzles.reduce(
-        (puzzles: Uint8Array, puzzle: EncodedPuzzle)=>combineUint8Arrays(puzzles, puzzle.puzzle),
-        new Uint8Array()),puzzles),
+      (puzzles: Uint8Array, category: EncodedCategory)=>combineUint8Arrays(puzzles, category.puzzles.reduce(
+        (puzzles: Uint8Array, puzzle: EncodedPuzzle)=>
+        {
+          //console.log('Puzzle: ',Array.from(puzzle.puzzle).map(num=>String.fromCharCode(num)));
+          return combineUint8Arrays(puzzles, puzzle.puzzle)
+        },
+        new Uint8Array())),
       new Uint8Array());
 
     allPuzzles = combineUint8Arrays(allPuzzles, unfilledPuzzlesArray.slice(allPuzzles.length,unfilledPuzzlesArray.length));
@@ -97,7 +101,7 @@ export class RomService {
     contents: Uint8Array,
     encodedCategories: EncodedCategories) {
     const puzzlePointersStart = 0x101FC;
-    const puzzlePointersEnd = puzzlePointersStart + 2000;
+    const puzzlePointersEnd = puzzlePointersStart + 2002;
 
     if(!environment.production) {
       const solutionPointers = contents.slice(puzzlePointersStart,puzzlePointersEnd);
@@ -152,14 +156,6 @@ export class RomService {
         return pointers;
       },[]);
       
-      /*
-      const catPointers = encodedCategories.reduce((catPointers: Uint8Array, category, i)=>{
-        console.log('cat add math: ',category.address.toString(16),' + ', RamAddressOffset.toString(16), ' = ',(category.address + RamAddressOffset).toString(16));
-        catPointers.set(this.addressToBytes(category.address + RamAddressOffset), i * 2);
-        return catPointers;
-      },new Uint8Array(categoryPointersEnd-categoryPointersStart));
-      */
-
       contents.set(fixedPointers,categoryPointersStart);
 
       if(!environment.production) {
@@ -285,6 +281,8 @@ export class RomService {
       const categories = config.games[id].categories;
       const puzzles = config.games[id].puzzles;
       const encodedCategories = this.encoder.encodeGame(categories, puzzles);
+      
+      console.log('encoded game:\n',encodedCategories);
 
       this.replacePuzzleSolutions(contents, encodedCategories);
       const categoryPointers = this.replacePuzzlePointers(contents, encodedCategories);
