@@ -22,7 +22,7 @@ export class ConfigEntryEncoderService {
     // might not be needed anymore?
     let address = 0x89CE;
 
-    return categories.map(category=>{
+    return categories.sort((cat1,cat2)=>cat1.id - cat2.id).map(category=>{
       const catAddress = address;
       console.log('catAddress: ',catAddress.toString(16));
       const encodedCategory = this.encodeCategoryName(category.name);
@@ -75,7 +75,7 @@ export class ConfigEntryEncoderService {
 
     return { 
       puzzles: encodedPuzzles,
-      nextAddress: address+1
+      nextAddress: address
     }
   }
 
