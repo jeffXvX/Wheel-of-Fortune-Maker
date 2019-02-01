@@ -10,6 +10,7 @@ export interface GameConfig {
 
 export interface WoFConfig {
     games: GameConfig[],
+    version: string,
     //selectedGameIndex: number,
     //selectedGame: number,
     //lastId: number,

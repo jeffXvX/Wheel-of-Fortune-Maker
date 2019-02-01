@@ -117,8 +117,9 @@ export class ConfigState {
     }; 
     
     ctx.setState({
-        games: [...state.games, game],
-        //selectedGameIndex: state.selectedGameIndex,
+      version: state.version,
+      games: [...state.games, game],
+      //selectedGameIndex: state.selectedGameIndex,
     })
   }
 
@@ -127,8 +128,9 @@ export class ConfigState {
     const state = ctx.getState();
 
     ctx.setState({
-        games: state.games.filter(gameConfig=> gameConfig.game.id != action.payload.id),
-        //selectedGameIndex: state.selectedGameIndex,
+      version: state.version,
+      games: state.games.filter(gameConfig=> gameConfig.game.id != action.payload.id),
+      //selectedGameIndex: state.selectedGameIndex,
     });
   }
 
