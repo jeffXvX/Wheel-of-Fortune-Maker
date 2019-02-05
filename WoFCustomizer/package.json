@@ -8,7 +8,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "noJekyll": "touch ./dist/app/.nojekyll",
+    "noJekyll": "touch ./dist/.nojekyll",
     "copyAppToDocs": "cp -r ./dist/app/** ../docs",
     "deploy": "ng build --prod && npm run noJekyll && npm run copyAppToDocs"
   },
