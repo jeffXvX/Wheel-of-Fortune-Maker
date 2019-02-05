@@ -14,8 +14,11 @@ import { ConfigEntryEncoderService } from './encoder/config-entry-encoder.servic
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
 import { EncodedPuzzle } from './encoder/encoded-puzzles.model';
 import { combineUint8Arrays } from './typed-array-helpers/combine-arrays.fn';
-import { maxCharacters } from '../game/game.model';
+//import { maxCharacters } from '../game/game.model';
 import { environment } from 'src/environments/environment';
+import { RomConstantsService } from './rom-constants/rom-constants.service';
+import { RomConstantsState } from './rom-constants/rom-constants.state';
+import { AllRomConstants } from './rom-constants/rom-constants.model';
 
 @Injectable()
 export class RomService {
@@ -25,7 +28,8 @@ export class RomService {
   constructor(
     private store: Store, 
     private encoder: ConfigEntryEncoderService, 
-    private sanitizer: DomSanitizer) { }
+    private sanitizer: DomSanitizer,
+    private romConstsService: RomConstantsService) { }
 
   /**
    * Read the given file into the store so that 
@@ -66,11 +70,11 @@ export class RomService {
    */
   replacePuzzleSolutions(
     contents: Uint8Array, 
-    encodedCategories: EncodedCategories) {
-    const solutionsStart = 0x109DE;
-    const solutionsEnd = 0x109DE + maxCharacters;
-    const unusedPuzzleSpace = 0xFF;
-    const unfilledPuzzlesArray = new Uint8Array(maxCharacters).fill(unusedPuzzleSpace);
+    encodedCategories: EncodedCategories,
+    romConstants: AllRomConstants) {
+
+    const unfilledPuzzlesArray = new Uint8Array(romConstants.maxPuzzleCharacters)
+      .fill(romConstants.puzzlesUnusedSpaceValue);
 
     let allPuzzles = encodedCategories.reduce(
       (puzzles: Uint8Array, category: EncodedCategory)=>combineUint8Arrays(puzzles, category.puzzles.reduce(
@@ -85,11 +89,13 @@ export class RomService {
     allPuzzles = combineUint8Arrays(allPuzzles, unfilledPuzzlesArray.slice(allPuzzles.length,unfilledPuzzlesArray.length));
      
     if(!environment.production) {    
-      console.log('Puzzles:\n',Array.from(contents.slice(solutionsStart,solutionsEnd)).map(num=>String.fromCharCode(num)));
+      console.log('Puzzles:\n', Array
+        .from(contents.slice(romConstants.puzzlesStartAddress,romConstants.puzzlesEndAddress))
+        .map(num=>String.fromCharCode(num)));
       console.log('New puzzles:\n',Array.from(allPuzzles).map(num=>String.fromCharCode(num)));
     }
 
-    contents.set(allPuzzles,solutionsStart);
+    contents.set(allPuzzles,romConstants.puzzlesStartAddress);
   }
 
   /**
@@ -99,31 +105,36 @@ export class RomService {
    */
   replacePuzzlePointers(
     contents: Uint8Array,
-    encodedCategories: EncodedCategories) {
-    const puzzlePointersStart = 0x101FC;
-    const puzzlePointersEnd = puzzlePointersStart + 2002;
+    encodedCategories: EncodedCategories,
+    romConstants: AllRomConstants) {
 
     if(!environment.production) {
-      const solutionPointers = contents.slice(puzzlePointersStart,puzzlePointersEnd);
-      console.log('Puzzle pointers:',Array.from(solutionPointers).map(num=>num.toString(16)));
+
+      const solutionPointers = contents.slice(
+        romConstants.puzzlePointersStartAddress,
+        romConstants.puzzlePointersEndAddress);
+
+      console.log('Puzzle pointers:',Array
+        .from(solutionPointers)
+        .map(num=>num.toString(16)));
     }
 
-    let lastCategoryPointer = puzzlePointersStart;
-    const categoryPointers = new Array<number>(9);
+    let lastCategoryPointer = romConstants.puzzlePointersStartAddress;
+    const categoryPointers = new Array<number>(romConstants.numberOfCategories);
     const addresses = encodedCategories.reduce((addresses: number[], category, i)=>{
       categoryPointers[i] = lastCategoryPointer;
       addresses.push(...category.puzzles.reduce((addresses: number[], puzzle)=>{
         addresses.push(...this.addressToBytes(puzzle.address));
-        lastCategoryPointer += 2; // each pointer takes up 2 bytes so move ahead 2 bytes to the next puzzle
+        lastCategoryPointer += romConstants.categoryPointerAddressSize;
         return addresses;
       },[]));
       return addresses;
     },[]);
-    addresses.push(...new Array((puzzlePointersEnd-puzzlePointersStart) - addresses.length).fill(0x00));
-    contents.set(addresses,puzzlePointersStart);
+    addresses.push(...new Array((romConstants.puzzlePointersEndAddress - romConstants.puzzlePointersStartAddress) - addresses.length).fill(0x00));
+    contents.set(addresses,romConstants.puzzlePointersStartAddress);
 
     if(!environment.production) {
-      const solutionPointers = contents.slice(puzzlePointersStart,puzzlePointersEnd);
+      const solutionPointers = contents.slice(romConstants.puzzlePointersStartAddress,romConstants.puzzlePointersEndAddress);
       console.log('New puzzle pointers:',Array.from(solutionPointers).map(num=>num.toString(16)));
     }
 
@@ -139,27 +150,28 @@ export class RomService {
   replaceCategoryPointers(
     contents: Uint8Array,
     encodedCategories: EncodedCategories,
-    categoryPointers: number[]) {
-      const RamAddressOffset = 0x8010; // 32784
-      const solutionPointersStart = 0x101FC;
-      const categoryPointersStart = 0x101E8;
-      const categoryPointersEnd = categoryPointersStart + 18;
-      
+    categoryPointers: number[],
+    romConstants: AllRomConstants) {
+
       if(!environment.production){
-        console.log('Passed category pointers: ', categoryPointers.map(num=>(num - RamAddressOffset).toString(16)));
-        let romCategoryPointers = Array.from(contents.slice(categoryPointersStart,categoryPointersEnd)).map(num=>num.toString(16));
+        console.log('Passed category pointers: ', categoryPointers.map(num=>(num - romConstants.ramAddressOffset).toString(16)));
+        let romCategoryPointers = Array
+          .from(contents.slice(romConstants.categoryPointersStartAddress, romConstants.categoryPointersEndAddress))
+          .map(num=>num.toString(16));
         console.log('Rom Category Pointers:', romCategoryPointers);
       }
 
       const fixedPointers = categoryPointers.reduce((pointers: number[], pointer)=>{
-        pointers.push(...this.addressToBytes(pointer - RamAddressOffset));
+        pointers.push(...this.addressToBytes(pointer - romConstants.ramAddressOffset));
         return pointers;
       },[]);
       
-      contents.set(fixedPointers,categoryPointersStart);
+      contents.set(fixedPointers,romConstants.categoryPointersStartAddress);
 
       if(!environment.production) {
-        let romCategoryPointers = Array.from(contents.slice(categoryPointersStart,categoryPointersEnd)).map(num=>num.toString(16));
+        let romCategoryPointers = Array
+          .from(contents.slice(romConstants.categoryPointersStartAddress, romConstants.categoryPointersEndAddress))
+          .map(num=>num.toString(16));
         console.log('New Category Pointers:', romCategoryPointers);
       }
   }
@@ -172,12 +184,12 @@ export class RomService {
    */
   replaceNumberOfPuzzlesInCategories(
     contents: Uint8Array,
-    encodedCategories: EncodedCategories) {
-    const numOfCategoryAnswersAddresses = [0x100DD, 0x100E9, 0x100F5, 0x10101, 0x1010D, 0x10119, 0x10125, 0x10131];
+    encodedCategories: EncodedCategories,
+    romConstants: AllRomConstants) {
 
     if(!environment.production){
       let nca = [];
-      numOfCategoryAnswersAddresses.forEach(address=>{
+      romConstants.numberOfCategoryAnswersAddresses.forEach(address=>{
         console.log('grabbing address ',address,' to ',contents.slice(address,address+1));
         nca.push(contents.slice(address,address+1));
       });
@@ -193,7 +205,7 @@ export class RomService {
       console.log('calculated sizes:\n',sizes);
     }
 
-    numOfCategoryAnswersAddresses.forEach((addr,idx)=>{
+    romConstants.numberOfCategoryAnswersAddresses.forEach((addr,idx)=>{
       contents[addr] = sizes[idx];
       if(!environment.production){
         console.log('setting address ',addr,' to ',contents.slice(addr,addr+1));
@@ -208,19 +220,15 @@ export class RomService {
    */
   replaceCategoryNames(
     contents: Uint8Array,
-    encodedCategories: EncodedCategories) {
-    const categoryNamesStart = 0x1483;
-    const categoryNameLength = 8;
-    const numberOfCategories = 9;
-    const categoryUnusedByte = 0x00;
-    const categoryNamesEnd = categoryNamesStart + (categoryNameLength * numberOfCategories);
+    encodedCategories: EncodedCategories,
+    romConstants: AllRomConstants) {
 
     if(!environment.production){
-      let categoryNames = contents.slice(categoryNamesStart,categoryNamesEnd);
+      let categoryNames = contents.slice(romConstants.categoryNamesStartAddress,romConstants.categoryNamesEndAddress);
       console.log('category names:',Array.from(categoryNames).map(num=>catNameDecodeTable[num]));
     }
 
-    const categoryData = new Uint8Array(categoryNamesEnd-categoryNamesStart).fill(categoryUnusedByte);
+    const categoryData = new Uint8Array(romConstants.categoryNamesEndAddress-romConstants.categoryNamesStartAddress).fill(romConstants.categoryUnusedSpaceValue);
     const encodedCategoryData = encodedCategories.reduce((categoryData: Uint8Array,category)=>{
       if(!environment.production){ console.log('category name:',category.category); }
       return combineUint8Arrays(categoryData,category.category);
@@ -228,10 +236,10 @@ export class RomService {
 
     categoryData.set(encodedCategoryData);
 
-    contents.set(categoryData,categoryNamesStart);
+    contents.set(categoryData,romConstants.categoryNamesStartAddress);
 
     if(!environment.production){
-      let categoryNames = contents.slice(categoryNamesStart,categoryNamesEnd);
+      let categoryNames = contents.slice(romConstants.categoryNamesStartAddress,romConstants.categoryNamesEndAddress);
       console.log('changed category names:',Array.from(categoryNames).map(num=>catNameDecodeTable[num]));
     }
   }
@@ -243,12 +251,11 @@ export class RomService {
    */
   replaceCategoryNameLengths(
     contents: Uint8Array,
-    encodedCategories: EncodedCategories) {
-    const categoryNameLengthsStart = 0x1FAF;
-    const categoryNameLengthsEnd = categoryNameLengthsStart + 9;
-
+    encodedCategories: EncodedCategories,
+    romConstants: AllRomConstants) {
+   
     if(!environment.production) {
-      let categoryNameLengths = contents.slice(categoryNameLengthsStart,categoryNameLengthsEnd);
+      let categoryNameLengths = contents.slice(romConstants.categoryNameLengthsStartAddress, romConstants.categoryNameLengthsEndAddress);
       console.log('category name lengths:',categoryNameLengths.map(num=>catNameLengthDecodeTable[num]));
     }
 
@@ -256,12 +263,12 @@ export class RomService {
       lengths[i] = category.nameLength;
       console.log('building lengths:\n',lengths);
       return lengths;
-    },new Uint8Array(categoryNameLengthsEnd- categoryNameLengthsStart));
+    },new Uint8Array(romConstants.categoryNameLengthsEndAddress - romConstants.categoryNameLengthsStartAddress));
     
-    contents.set(nameLengths,categoryNameLengthsStart);
+    contents.set(nameLengths,romConstants.categoryNameLengthsStartAddress);
 
     if(!environment.production) {
-      let categoryNameLengths = contents.slice(categoryNameLengthsStart,categoryNameLengthsEnd);
+      let categoryNameLengths = contents.slice(romConstants.categoryNameLengthsStartAddress,romConstants.categoryNameLengthsEndAddress);
       console.log('new category name lengths:',categoryNameLengths.map(num=>catNameLengthDecodeTable[num]));
     }
   }
@@ -274,8 +281,9 @@ export class RomService {
   writeRom(id: number) {
     combineLatest(
       this.store.selectOnce(RomState.contents),
-      this.store.selectOnce(ConfigState.config))
-    .subscribe(([contents, config])=>{
+      this.store.selectOnce(ConfigState.config),
+      this.store.selectOnce(RomConstantsState.allConstants))
+    .subscribe(([contents, config, costants])=>{
       console.log('Store data for Rom Writing:\n', config, contents);
       const game = config.games[id].game;
       const categories = config.games[id].categories;
@@ -284,12 +292,12 @@ export class RomService {
       
       console.log('encoded game:\n',encodedCategories);
 
-      this.replacePuzzleSolutions(contents, encodedCategories);
-      const categoryPointers = this.replacePuzzlePointers(contents, encodedCategories);
-      this.replaceCategoryPointers(contents, encodedCategories, categoryPointers);
-      this.replaceNumberOfPuzzlesInCategories(contents, encodedCategories);
-      this.replaceCategoryNames(contents, encodedCategories);
-      this.replaceCategoryNameLengths(contents, encodedCategories);
+      this.replacePuzzleSolutions(contents, encodedCategories, costants);
+      const categoryPointers = this.replacePuzzlePointers(contents, encodedCategories, costants);
+      this.replaceCategoryPointers(contents, encodedCategories, categoryPointers, costants);
+      this.replaceNumberOfPuzzlesInCategories(contents, encodedCategories, costants);
+      this.replaceCategoryNames(contents, encodedCategories, costants);
+      this.replaceCategoryNameLengths(contents, encodedCategories, costants);
       this.writeBlob(contents);
     });
   }
@@ -318,7 +326,6 @@ export class RomService {
     const lowByte = (address & 0xFF00) >> 8;
     return [highByte, lowByte]; 
   }
-
 
 }
 

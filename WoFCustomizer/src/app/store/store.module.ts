@@ -5,6 +5,7 @@ import { CategoriesState } from '../features/game/categories/categories.state';
 import { PuzzlesState } from '../features/game/puzzles/puzzles.state';
 import { ConfigState } from '../features/config/config.state';
 import { RomState } from '../features/rom/rom.state';
+import { RomConstantsState } from '../features/rom/rom-constants/rom-constants.state';
 
 @NgModule({
   declarations: [],
@@ -14,7 +15,8 @@ import { RomState } from '../features/rom/rom.state';
       GameState,
       CategoriesState,
       PuzzlesState,
-      RomState
+      RomState,
+      RomConstantsState
     ])    
   ]
 })
