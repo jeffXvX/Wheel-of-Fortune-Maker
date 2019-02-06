@@ -10,10 +10,8 @@ Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app w
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
 ## Build
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-## Running unit tests
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-## Running end-to-end tests
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+## Deploy
+This app is hosted on the github page associated with the repo.  In order to deploy a new version run the deploy npm script with 'npm run deploy' from the WoFCustomizer directory.  The deploy script will rebuild the app and copy the contents to the necessary locations for the repo.  Then commit and push back to the git repo and pull the changes to the master branch.  The node script './WoFCustomizer/node-scripts/modify-index-for-github.js' makes the changes necessary to the index.html file in order to properly host the app on the github page.  The noJekyll script turns off jekyll on the github repo so that the docs folder's index.html file is automatically served.
 ## Further help
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 ## Additional information about Wheel of Fortune (NES)
