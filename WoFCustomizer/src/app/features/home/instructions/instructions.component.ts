@@ -12,7 +12,7 @@ export class InstructionsComponent implements OnInit {
   dataUrl: SafeResourceUrl;
   constructor(private sanitizer: DomSanitizer) {
     // just a quick and dirty fix for pulling in the instructions 
-    if(environment.production) {
+    if(!environment.production) {
       this.dataUrl = this.sanitizer.bypassSecurityTrustResourceUrl('/assets/instructions/wof_instructions.html');
     }
     else {
