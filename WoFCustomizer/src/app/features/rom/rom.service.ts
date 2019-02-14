@@ -17,6 +17,7 @@ import { RomConstantsState } from './rom-constants/rom-constants.state';
 import { AllRomConstants } from './rom-constants/rom-constants.model';
 import { ErrorHandlingService } from '../error-handling/error-handling.service';
 import { AppErrorCode, AppErrorStatus, AppError, AppErrorMessages } from '../error-handling/error/error.model';
+import { RomConstantsService } from './rom-constants/rom-constants.service';
 
 @Injectable()
 export class RomService {
@@ -27,6 +28,7 @@ export class RomService {
     private store: Store, 
     private encoder: ConfigEntryEncoderService,
     private errorService: ErrorHandlingService,
+    private romConstantsService: RomConstantsService,
     private sanitizer: DomSanitizer) { }
 
   /**
@@ -59,6 +61,7 @@ export class RomService {
 
       if(!environment.production){
         console.log('Rom md5 hash: ', hash);
+        console.log('Supported md5 hash: ', md5);
       }
 
       const checksumPassed = md5 === hash;
