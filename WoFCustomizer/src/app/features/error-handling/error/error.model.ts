@@ -17,3 +17,8 @@ export interface AppError {
     status: AppErrorStatus;
     message: string;
 }
+
+export const AppErrorMessages = {
+    TEST: 'Test Error Message',
+    ROM_VERSION: 'The supplied ROM does not match a supported version.',
+}

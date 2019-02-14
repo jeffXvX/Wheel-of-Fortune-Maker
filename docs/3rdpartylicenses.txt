@@ -1,3 +1,6 @@
+ts-md5
+MIT
+
 tslib
 Apache-2.0
 Apache License
@@ -269,6 +272,9 @@ MIT
 @ngxs/store
 MIT
 
+@angular/animations
+MIT
+
 @angular/cdk
 MIT
 The MIT License
@@ -297,9 +303,6 @@ THE SOFTWARE.
 @angular/common
 MIT
 
-@angular/platform-browser
-MIT
-
 @angular/material
 MIT
 The MIT License
@@ -325,8 +328,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
-@angular/animations
+@angular/platform-browser
 MIT
+
+@angular/material/button
+
+@angular/material/snack-bar
+
+@angular/material/dialog
 
 @angular/material/tabs
 
@@ -341,13 +350,13 @@ MIT
 
 @angular/material/expansion
 
-@angular/material/button
-
 @angular/cdk/scrolling
 
 @angular/material/core
 
 @angular/material/select
+
+@angular/material/list
 
 zone.js
 MIT
