@@ -29,6 +29,7 @@
     "@ngxs/store": "^3.3.1",
     "core-js": "^2.5.4",
     "rxjs": "~6.3.3",
+    "ts-md5": "^1.2.4",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {

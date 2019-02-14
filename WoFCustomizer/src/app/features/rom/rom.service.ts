@@ -20,6 +20,11 @@ import { RomConstantsService } from './rom-constants/rom-constants.service';
 import { RomConstantsState } from './rom-constants/rom-constants.state';
 import { AllRomConstants } from './rom-constants/rom-constants.model';
 
+import {Md5} from 'ts-md5/dist/md5';
+import { ErrorHandlingService } from '../error-handling/error-handling.service';
+import { AppErrorCode, AppErrorStatus, AppError } from '../error-handling/error/error.model';
+import { DialogHandlingService } from '../dialog-handling/dialog-handling.service';
+
 @Injectable()
 export class RomService {
   sanitizedRomFileSubject = new Subject<SafeUrl>();
@@ -27,7 +32,9 @@ export class RomService {
 
   constructor(
     private store: Store, 
-    private encoder: ConfigEntryEncoderService, 
+    private encoder: ConfigEntryEncoderService,
+    private errorService: ErrorHandlingService,
+    private dialogService: DialogHandlingService, 
     private sanitizer: DomSanitizer,
     private romConstsService: RomConstantsService) { }
 
@@ -41,10 +48,42 @@ export class RomService {
     reader.onloadend = pe => {
       const RomFileBuffer = reader.result as ArrayBuffer;
       const contents = this.convertArrayBufferToArray(RomFileBuffer);
+
+      this.verifyChecksum(contents);
+
       console.log("file contents:\n",contents);
       this.store.dispatch(new SetRomContents({ contents: contents }));
     };
     const text = reader.readAsArrayBuffer(file);
+  }
+
+  verifyChecksum(contents: Uint8Array) {
+    this.store.selectOnce(RomConstantsState.md5).subscribe(md5=>{
+      const checksummer = new Md5();
+      checksummer.appendByteArray(contents);
+      const hash = checksummer.end();
+      console.log('Rom md5 hash: ', hash);
+      const checksumPassed = md5 === hash;
+      if(!checksumPassed) {
+
+        const checksumError: AppError = {
+          code: AppErrorCode.ROM_VERSION,
+          message: `ROM checksum verification failure`,
+          status: AppErrorStatus.UNREAD
+        };
+
+        this.dialogService.showErrorDialog(checksumError); 
+        this.errorService.newError(checksumError);
+      }
+      console.log('checksumPassed?: ',checksumPassed);
+    });
+
+    /*
+    this.errorService.newError({
+      code: AppErrorCode.ROM_VERSION,
+      message: ''
+    })
+    */
   }
 
   /**

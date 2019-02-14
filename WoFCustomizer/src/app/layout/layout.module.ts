@@ -7,6 +7,8 @@ import { FilesModule } from '../features/files/files.module';
 import { ConfigModule } from '../features/config/config.module';
 import { HomeModule } from '../features/home/home.module';
 import { RomModule } from '../features/rom/rom.module';
+import { ErrorHandlingModule } from '../features/error-handling/error-handling.module';
+import { DialogHandlingModule } from '../features/dialog-handling/dialog-handling.module';
 
 @NgModule({
   declarations: [LayoutComponent],
@@ -17,7 +19,9 @@ import { RomModule } from '../features/rom/rom.module';
     GameModule,
     FilesModule,
     ConfigModule,
-    RomModule
+    RomModule,
+    ErrorHandlingModule,
+    DialogHandlingModule
   ],
   exports: [LayoutComponent]
 })
