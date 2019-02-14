@@ -13,6 +13,10 @@ export class RomConstantsState {
         return state;
     }
 
+    @Selector() static md5(state: RomConstants) {
+        return state.md5;
+    }
+
     @Selector() static allConstants(state: RomConstants): AllRomConstants {
         return {
             ...state,

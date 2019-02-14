@@ -4,6 +4,7 @@ import { RomConstants } from "../rom-constants/rom-constants.model";
  * These values are for the initial USA release of WoF. 
  */
 export const USANoRev: RomConstants = {
+    md5: "700eae7a34c5adb877a7052882ca8086",
     puzzlesRequired: 1001,
     maxPuzzleCharacters: 30130,
     numberOfCategories: 9,

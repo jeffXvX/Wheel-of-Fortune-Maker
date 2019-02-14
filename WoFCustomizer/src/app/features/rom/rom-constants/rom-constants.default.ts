@@ -1,6 +1,7 @@
 import { RomConstants } from "./rom-constants.model";
 
 export const defaultRomConstants = (): RomConstants=>  ({
+    md5: '',
     puzzlesRequired: 0,
     maxPuzzleCharacters: 0,
     numberOfCategories: 0,

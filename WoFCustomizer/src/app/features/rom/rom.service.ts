@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
+import { Md5 } from 'ts-md5/dist/md5';
 import { ConfigState } from '../config/config.state';
-import { Category } from '../game/category/category.model';
-import { Puzzles } from '../game/puzzles/puzzles.model';
-import { catNameEncodeTable, catNameDecodeTable } from './encoder/category-name-tables.model';
-import { Puzzle } from '../game/puzzle/puzzle.model';
 import { combineLatest, Subject } from 'rxjs';
+import { catNameDecodeTable } from './encoder/category-name-tables.model';
 import { SetRomContents } from './rom.actions';
 import { RomState } from './rom.state';
 import { catNameLengthDecodeTable } from './encoder/category-name-length-tables.model';
@@ -14,11 +12,11 @@ import { ConfigEntryEncoderService } from './encoder/config-entry-encoder.servic
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
 import { EncodedPuzzle } from './encoder/encoded-puzzles.model';
 import { combineUint8Arrays } from './typed-array-helpers/combine-arrays.fn';
-//import { maxCharacters } from '../game/game.model';
 import { environment } from 'src/environments/environment';
-import { RomConstantsService } from './rom-constants/rom-constants.service';
 import { RomConstantsState } from './rom-constants/rom-constants.state';
 import { AllRomConstants } from './rom-constants/rom-constants.model';
+import { ErrorHandlingService } from '../error-handling/error-handling.service';
+import { AppErrorCode, AppErrorStatus, AppError, AppErrorMessages } from '../error-handling/error/error.model';
 
 @Injectable()
 export class RomService {
@@ -27,9 +25,9 @@ export class RomService {
 
   constructor(
     private store: Store, 
-    private encoder: ConfigEntryEncoderService, 
-    private sanitizer: DomSanitizer,
-    private romConstsService: RomConstantsService) { }
+    private encoder: ConfigEntryEncoderService,
+    private errorService: ErrorHandlingService,
+    private sanitizer: DomSanitizer) { }
 
   /**
    * Read the given file into the store so that 
@@ -41,10 +39,44 @@ export class RomService {
     reader.onloadend = pe => {
       const RomFileBuffer = reader.result as ArrayBuffer;
       const contents = this.convertArrayBufferToArray(RomFileBuffer);
-      console.log("file contents:\n",contents);
+
+      this.verifyChecksum(contents);
+
+      if(!environment.production){
+        console.log("file contents:\n",contents);
+      }
+      
       this.store.dispatch(new SetRomContents({ contents: contents }));
     };
     const text = reader.readAsArrayBuffer(file);
+  }
+
+  verifyChecksum(contents: Uint8Array) {
+    this.store.selectOnce(RomConstantsState.md5).subscribe(md5=>{
+      const checksummer = new Md5();
+      checksummer.appendByteArray(contents);
+      const hash = checksummer.end();
+
+      if(!environment.production){
+        console.log('Rom md5 hash: ', hash);
+      }
+
+      const checksumPassed = md5 === hash;
+
+      if(!checksumPassed) {
+
+        const checksumError: AppError = {
+          code: AppErrorCode.ROM_VERSION,
+          message: AppErrorMessages.ROM_VERSION,
+          status: AppErrorStatus.UNREAD
+        };
+
+        this.errorService.newError(checksumError, true);
+      }
+      if(!environment.production){
+        console.log('checksumPassed?: ',checksumPassed);
+      }
+    });
   }
 
   /**

@@ -1,4 +1,7 @@
 export interface RomConstants {
+    // rom version checksum
+    md5: string;
+    
     // rom requirements
     puzzlesRequired: number;
     maxPuzzleCharacters: number;

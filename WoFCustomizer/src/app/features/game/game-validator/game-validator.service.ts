@@ -38,5 +38,12 @@ export class GameValidatorService {
       return totalCharacters;
     }, 0)
   }
+
+  /**
+   * 
+   */
+  checkForDuplicatePuzzles(puzzles: Puzzles) {}
+
+  
 }
 

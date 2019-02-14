@@ -1,0 +1,17 @@
+<div *ngIf="hasErrors$ | async; else noErrorsBlock">
+  <mat-list>
+    <ng-container *ngFor="let error of errors$ | async">
+      <mat-list-item>
+        <wof-error [error]="error"></wof-error>
+      </mat-list-item>
+    </ng-container>
+  </mat-list>
+</div>
+
+<ng-template #noErrorsBlock>
+  <div>
+    <p>No errors.  Yet...</p>
+  </div>
+</ng-template>
+
+<button (click)="addTestError()">Add Test Error</button>

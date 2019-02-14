@@ -1,0 +1,4 @@
+div.controls {
+    display:flex;
+    justify-content: flex-end;
+}
