@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
+import { Game } from '../../game/game.model';
 import { Category } from '../../game/category/category.model';
 import { Puzzles } from '../../game/puzzles/puzzles.model';
+import { EncodedGame } from './encoded-game.model';
 import { EncodedCategories } from './encoded-categories.model';
 import { Puzzle } from '../../game/puzzle/puzzle.model';
 import { EncodedPuzzle } from './encoded-puzzles.model';
 import { catNameEncodeTable } from './category-name-tables.model';
 import { combineUint8Arrays } from '../typed-array-helpers/combine-arrays.fn';
 import { catNameLengthEncodeTable } from './category-name-length-tables.model';
+import { AllRomConstants } from '../rom-constants/rom-constants.model';
 
 @Injectable()
 export class ConfigEntryEncoderService {
@@ -17,12 +20,12 @@ export class ConfigEntryEncoderService {
    * Create a data structure from the categories and puzzles
    * containing the encoded text and the address offsets.
    */
-  encodeGame(categories: Category[], puzzles: Puzzles): EncodedCategories {
+  encodeGame(game: Game, categories: Category[], puzzles: Puzzles, constants: AllRomConstants): EncodedGame {
     // for now just hardcode the starting address
     // might not be needed anymore?
     let address = 0x89CE;
 
-    return categories.sort((cat1,cat2)=>cat1.id - cat2.id).map(category=>{
+    const encodedCategories = categories.sort((cat1,cat2)=>cat1.id - cat2.id).map(category=>{
       const catAddress = address;
       console.log('catAddress: ',catAddress.toString(16));
       const encodedCategory = this.encodeCategoryName(category.name);
@@ -35,6 +38,48 @@ export class ConfigEntryEncoderService {
         puzzles: encodedPuzzles.puzzles
       }
     });
+
+    const encodedGame = {
+      categories: encodedCategories,
+      intro: {
+        introText: this.encodeIntroText(game.introText, constants),
+        scrollingText: this.encodeScrollingText(game.scrollingText, constants),
+      }
+    }
+    
+    return encodedGame;
+  }
+
+  /**
+   * Encode and pad an array of size 3 into the intro screen text.
+   * @param introLines 
+   * @param constants 
+   */
+  encodeIntroText(introLines: string[], constants: AllRomConstants) {
+    const line1 = combineUint8Arrays(
+      this.setLastHighBit(this.convertStringToCharacterCodes(introLines[0])),
+      new Uint8Array([0x21, 0x86]));
+
+    const line2 = combineUint8Arrays(
+      this.setLastHighBit(this.convertStringToCharacterCodes(introLines[1])),
+      new Uint8Array([0x21, 0xa4]));
+
+    const line3 = this.convertStringToCharacterCodes(introLines[2]);
+
+    const introText = combineUint8Arrays(combineUint8Arrays(line1,line2),line3);
+    const paddedIntroText = combineUint8Arrays(introText, new Uint8Array(constants.introTextLength - introText.length).fill(constants.introTextWhiteSpaceChar.charCodeAt(0)));
+    return paddedIntroText;
+  }
+
+  /**
+   * Encode and pad the scrolling text
+   * @param scrollingText 
+   * @param constants 
+   */
+  encodeScrollingText(scrollingText: string, constants: AllRomConstants) {
+    return this.convertStringToCharacterCodes(scrollingText
+      .padEnd(constants.titleScrollingTextLength, constants.titleScrollingTextWhiteSpaceChar)
+      .replace(' ', constants.titleScrollingTextWhiteSpaceChar))
   }
 
   /**

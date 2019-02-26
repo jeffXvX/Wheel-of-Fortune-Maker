@@ -21,6 +21,16 @@ export const USANoRev: RomConstants = {
     categoryNamesStartAddress: 0x1483,
     categoryNameCharacterLength: 8,
     categoryUnusedSpaceValue:  0x00,
-    categoryNameLengthsStartAddress: 0x1FAF, 
+    categoryNameLengthsStartAddress: 0x1FAF,
+
+    titleScrollingTextStartAddress: 0x0462,   
+    titleScrollingTextLength: 72,
+    titleScrollingTextWhiteSpaceChar: ',',
+
+    introTextStartAddress: 0x0D47,
+    introTextLength: 113,
+    introTextWhiteSpaceChar: ',',
+
+ 
 }
 

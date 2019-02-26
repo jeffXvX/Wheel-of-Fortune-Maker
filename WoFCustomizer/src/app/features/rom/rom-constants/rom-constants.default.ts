@@ -16,5 +16,11 @@ export const defaultRomConstants = (): RomConstants=>  ({
     categoryNamesStartAddress: 0,
     categoryNameCharacterLength: 0,
     categoryUnusedSpaceValue: 0,
-    categoryNameLengthsStartAddress: 0,  
+    categoryNameLengthsStartAddress: 0,
+    titleScrollingTextStartAddress: 0,   
+    titleScrollingTextLength: 0,
+    titleScrollingTextWhiteSpaceChar: '',
+    introTextStartAddress: 0,
+    introTextLength: 0,
+    introTextWhiteSpaceChar: '',
 });

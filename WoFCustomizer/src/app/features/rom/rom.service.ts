@@ -18,6 +18,7 @@ import { AllRomConstants } from './rom-constants/rom-constants.model';
 import { ErrorHandlingService } from '../error-handling/error-handling.service';
 import { AppErrorCode, AppErrorStatus, AppError, AppErrorMessages } from '../error-handling/error/error.model';
 import { RomConstantsService } from './rom-constants/rom-constants.service';
+import { EncodedIntro } from './encoder/encoded-intro.model';
 
 @Injectable()
 export class RomService {
@@ -50,7 +51,7 @@ export class RomService {
       
       this.store.dispatch(new SetRomContents({ contents: contents }));
     };
-    const text = reader.readAsArrayBuffer(file);
+    const buffer = reader.readAsArrayBuffer(file);
   }
 
   verifyChecksum(contents: Uint8Array) {
@@ -308,6 +309,30 @@ export class RomService {
     }
   }
 
+  replaceTitleScreenScrollingText(
+    contents: Uint8Array,
+    encodedIntro: EncodedIntro,
+    romConstants: AllRomConstants) {
+
+      if(!environment.production) {
+        let scollBytes = contents.slice(romConstants.titleScrollingTextStartAddress, romConstants.titleScrollingTextEndAddress);
+        
+        console.log('Scroll Text:', String.fromCharCode(...Array.from(scollBytes)));
+      }
+      
+      const testScrollText = 'TEST,SCROLL,TEXT'.padEnd(romConstants.titleScrollingTextLength,romConstants.titleScrollingTextWhiteSpaceChar);
+      const textArr = Array.from(testScrollText).map(char=>char.charCodeAt(0));
+      contents.set(textArr, romConstants.titleScrollingTextStartAddress);
+
+      //contents.set(encodedIntro.scrollingText, romConstants.titleScrollingTextStartAddress);
+
+      if(!environment.production) {
+        let scollBytes = contents.slice(romConstants.titleScrollingTextStartAddress, romConstants.titleScrollingTextEndAddress);      
+        console.log('Replaced Scroll Text:', String.fromCharCode(...Array.from(scollBytes)));
+      }
+
+  }
+
   /**
    * Replace a previously read in rom file's contents
    * with the data represented by a particular loaded config.
@@ -318,21 +343,24 @@ export class RomService {
       this.store.selectOnce(RomState.contents),
       this.store.selectOnce(ConfigState.config),
       this.store.selectOnce(RomConstantsState.allConstants))
-    .subscribe(([contents, config, costants])=>{
+    .subscribe(([contents, config, constants])=>{
       console.log('Store data for Rom Writing:\n', config, contents);
       const game = config.games[id].game;
       const categories = config.games[id].categories;
       const puzzles = config.games[id].puzzles;
-      const encodedCategories = this.encoder.encodeGame(categories, puzzles);
+      const encodedGame = this.encoder.encodeGame(game, categories, puzzles, constants);
       
-      console.log('encoded game:\n',encodedCategories);
+      console.log('encoded game:\n',encodedGame);
 
-      this.replacePuzzleSolutions(contents, encodedCategories, costants);
-      const categoryPointers = this.replacePuzzlePointers(contents, encodedCategories, costants);
-      this.replaceCategoryPointers(contents, encodedCategories, categoryPointers, costants);
-      this.replaceNumberOfPuzzlesInCategories(contents, encodedCategories, costants);
-      this.replaceCategoryNames(contents, encodedCategories, costants);
-      this.replaceCategoryNameLengths(contents, encodedCategories, costants);
+      this.replacePuzzleSolutions(contents, encodedGame.categories, constants);
+      const categoryPointers = this.replacePuzzlePointers(contents, encodedGame.categories, constants);
+      this.replaceCategoryPointers(contents, encodedGame.categories, categoryPointers, constants);
+      this.replaceNumberOfPuzzlesInCategories(contents, encodedGame.categories, constants);
+      this.replaceCategoryNames(contents, encodedGame.categories, constants);
+      this.replaceCategoryNameLengths(contents, encodedGame.categories, constants);
+
+      this.replaceTitleScreenScrollingText(contents, encodedGame.intro, constants);
+
       this.writeBlob(contents);
     });
   }
