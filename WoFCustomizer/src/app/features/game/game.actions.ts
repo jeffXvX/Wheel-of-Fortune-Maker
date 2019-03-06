@@ -16,7 +16,7 @@ export class ResetGame {
 
 export class SetIntroText {
     static type = "[Game] Set Intro Text";
-    constructor(public payload: { text: string[] }) {}    
+    constructor(public payload: { text: string, index: number }) {}    
 }
 
 export class SetScrollingText {

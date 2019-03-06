@@ -14,6 +14,70 @@
     <mat-divider></mat-divider>
   </div>
 
+  <div>
+    <mat-card>
+      <mat-card-title>Scrolling Text</mat-card-title>
+      <mat-card-content>
+        <form (submit)="onSubmit($event)">
+          <mat-form-field>
+            <mat-hint>Scrolling Text</mat-hint>
+            <input 
+              matInput 
+              type="text"
+              [attr.maxlength]="scrollingTextLength$ | async"
+              [value]="scrollingText$ | async"
+              (change)="onScrollingTextChange($event)"
+              />
+          </mat-form-field>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  
+    <mat-card>
+      <mat-card-title>Intro Text</mat-card-title>
+      <mat-card-content>
+        <form (submit)="onSubmit($event)">
+          <ng-container *ngIf="(introText$ | async) as introText">
+            <div>
+              <mat-form-field>
+                <mat-hint>Line 1</mat-hint>
+                <input
+                  matInput
+                  [attr.maxlength]="(introTextLength$ | async) - (introLine2Length$ | async) - (introLine3Length$ | async)"
+                  [value]="introText[0]"
+                  (change)="onIntroTextChange($event, 0)" 
+                  type="text"/>
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <mat-hint>Line 2</mat-hint>
+                <input 
+                  matInput 
+                  [attr.maxlength]="(introTextLength$ | async) - (introLine1Length$ | async) - (introLine3Length$ | async)"
+                  [value]="introText[1]" 
+                  (change)="onIntroTextChange($event, 1)" 
+                  type="text"/>
+              </mat-form-field>
+            </div>
+            <div>
+              <mat-form-field>
+                <mat-hint>Line 3</mat-hint>
+                <input
+                  matInput 
+                  [attr.maxlength]="(introTextLength$ | async) - (introLine1Length$ | async) - (introLine2Length$ | async)"
+                  [value]="introText[2]" 
+                  (change)="onIntroTextChange($event, 2)" 
+                  type="text"/>
+              </mat-form-field>
+            </div>
+          </ng-container>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
+    <mat-divider></mat-divider>
 
   <div class="progress-container">
     <mat-progress-bar mode="determinate" [value]="puzzlesProgress$ | async"></mat-progress-bar>
@@ -23,6 +87,5 @@
   <div class="progress-container">
     <mat-progress-bar mode="determinate" [value]="charactersProgress$ | async"></mat-progress-bar>
     {{charactersUsed$|async}} of {{maxCharacters}} max characters
-        
   </div>
 </div>

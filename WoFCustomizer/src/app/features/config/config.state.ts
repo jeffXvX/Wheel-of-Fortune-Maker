@@ -2,7 +2,7 @@ import { State, Selector, Action, StateContext, Store } from '@ngxs/store';
 import { WoFConfig, GameConfig } from './config.model';
 import { defaultWoFConfig } from './default-config.model';
 import { SetConfig, SelectGameConfig, AddGameConfig, DeleteGameConfig, CreateConfig } from './config.actions';
-import { SetGame, SetGameName, ResetGame } from '../game/game.actions';
+import { SetGame, SetGameName, ResetGame, SetScrollingText, SetIntroText } from '../game/game.actions';
 import { SetCategories, ChangeCategoryName, ResetCategories } from '../game/categories/categories.actions';
 import { SetPuzzles, AddPuzzles, DeletePuzzle, SetPuzzleAnswerLine, ResetPuzzles } from '../game/puzzles/puzzles.actions';
 import { copyGame, Game } from '../game/game.model';
@@ -155,7 +155,7 @@ export class ConfigState {
    * better we get a little hacky.
    */
 
-  @Action([SetGameName, SetGame])
+  @Action([SetGameName, SetGame, SetScrollingText, SetIntroText])
   updateGame(ctx: StateContext<WoFConfig>) {
     const state = {...ctx.getState()};
     state.games = [...state.games];

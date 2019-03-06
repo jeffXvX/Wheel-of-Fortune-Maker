@@ -3,7 +3,6 @@ import { Game } from '../../game/game.model';
 import { Category } from '../../game/category/category.model';
 import { Puzzles } from '../../game/puzzles/puzzles.model';
 import { EncodedGame } from './encoded-game.model';
-import { EncodedCategories } from './encoded-categories.model';
 import { Puzzle } from '../../game/puzzle/puzzle.model';
 import { EncodedPuzzle } from './encoded-puzzles.model';
 import { catNameEncodeTable } from './category-name-tables.model';
@@ -11,6 +10,11 @@ import { combineUint8Arrays } from '../typed-array-helpers/combine-arrays.fn';
 import { catNameLengthEncodeTable } from './category-name-length-tables.model';
 import { AllRomConstants } from '../rom-constants/rom-constants.model';
 
+/**
+ * This service takes a group of data representing the game state
+ * and converts those into the formats used by the ROM.  It is used 
+ * by the RomService to write a new rom.
+ */
 @Injectable()
 export class ConfigEntryEncoderService {
 
@@ -56,15 +60,20 @@ export class ConfigEntryEncoderService {
    * @param constants 
    */
   encodeIntroText(introLines: string[], constants: AllRomConstants) {
+    if(!introLines || introLines.length < 3) {
+      introLines = new Array(3).fill('');
+    }
+
     const line1 = combineUint8Arrays(
-      this.setLastHighBit(this.convertStringToCharacterCodes(introLines[0])),
-      new Uint8Array([0x21, 0x86]));
+      this.setLastHighBit(this.convertStringToCharacterCodes(introLines[0].replace(' ',','))),
+      new Uint8Array(constants.introTextLine1EndCharacters));
+      
 
     const line2 = combineUint8Arrays(
-      this.setLastHighBit(this.convertStringToCharacterCodes(introLines[1])),
-      new Uint8Array([0x21, 0xa4]));
+      this.setLastHighBit(this.convertStringToCharacterCodes(introLines[1].replace(' ',','))),
+      new Uint8Array(constants.introTextLine2EndCharacters));
 
-    const line3 = this.convertStringToCharacterCodes(introLines[2]);
+    const line3 = this.convertStringToCharacterCodes(introLines[2].replace(' ',','));
 
     const introText = combineUint8Arrays(combineUint8Arrays(line1,line2),line3);
     const paddedIntroText = combineUint8Arrays(introText, new Uint8Array(constants.introTextLength - introText.length).fill(constants.introTextWhiteSpaceChar.charCodeAt(0)));
@@ -77,6 +86,7 @@ export class ConfigEntryEncoderService {
    * @param constants 
    */
   encodeScrollingText(scrollingText: string, constants: AllRomConstants) {
+    scrollingText = scrollingText || '';
     return this.convertStringToCharacterCodes(scrollingText
       .padEnd(constants.titleScrollingTextLength, constants.titleScrollingTextWhiteSpaceChar)
       .replace(' ', constants.titleScrollingTextWhiteSpaceChar))

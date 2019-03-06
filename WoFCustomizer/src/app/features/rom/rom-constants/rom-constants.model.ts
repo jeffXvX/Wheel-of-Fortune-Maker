@@ -40,6 +40,8 @@ export interface RomConstants {
     introTextStartAddress: number;
     introTextLength: number;
     introTextWhiteSpaceChar: string;
+    introTextLine1EndCharacters: number[];
+    introTextLine2EndCharacters: number[];
 
 }
 

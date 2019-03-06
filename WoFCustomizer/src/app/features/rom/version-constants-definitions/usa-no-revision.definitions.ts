@@ -24,12 +24,14 @@ export const USANoRev: RomConstants = {
     categoryNameLengthsStartAddress: 0x1FAF,
 
     titleScrollingTextStartAddress: 0x0462,   
-    titleScrollingTextLength: 72,
+    titleScrollingTextLength: 48,
     titleScrollingTextWhiteSpaceChar: ',',
 
     introTextStartAddress: 0x0D47,
-    introTextLength: 113,
+    introTextLength: 71,
     introTextWhiteSpaceChar: ',',
+    introTextLine1EndCharacters: [0x21, 0x86],
+    introTextLine2EndCharacters: [0x21, 0xA4],
 
  
 }

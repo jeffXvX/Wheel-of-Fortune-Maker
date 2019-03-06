@@ -20,6 +20,11 @@ import { AppErrorCode, AppErrorStatus, AppError, AppErrorMessages } from '../err
 import { RomConstantsService } from './rom-constants/rom-constants.service';
 import { EncodedIntro } from './encoder/encoded-intro.model';
 
+/**
+ * This service reads in an existing rom and combines it with 
+ * the chosen game's state to create the new custom rom with the
+ * changes as specfied by the game data.
+ */
 @Injectable()
 export class RomService {
   sanitizedRomFileSubject = new Subject<SafeUrl>();
@@ -54,6 +59,11 @@ export class RomService {
     const buffer = reader.readAsArrayBuffer(file);
   }
 
+  /**
+   * Verify the md5 signature compared to known good values
+   * for a rom to be written to.
+   * @param contents The bytes to calculate the md5 of.
+   */
   verifyChecksum(contents: Uint8Array) {
     this.store.selectOnce(RomConstantsState.md5).subscribe(md5=>{
       const checksummer = new Md5();
@@ -309,28 +319,71 @@ export class RomService {
     }
   }
 
+  /**
+   * Replace the text scrolling at the bottom of the screen 
+   * with the text specified in the game.
+   */
   replaceTitleScreenScrollingText(
     contents: Uint8Array,
     encodedIntro: EncodedIntro,
     romConstants: AllRomConstants) {
 
       if(!environment.production) {
-        let scollBytes = contents.slice(romConstants.titleScrollingTextStartAddress, romConstants.titleScrollingTextEndAddress);
+        let scollBytes = contents.slice(
+          romConstants.titleScrollingTextStartAddress, 
+          romConstants.titleScrollingTextEndAddress);
         
-        console.log('Scroll Text:', String.fromCharCode(...Array.from(scollBytes)));
+        console.log(
+          'Scroll Text:', 
+          String.fromCharCode(...Array.from(scollBytes)));
       }
       
-      const testScrollText = 'TEST,SCROLL,TEXT'.padEnd(romConstants.titleScrollingTextLength,romConstants.titleScrollingTextWhiteSpaceChar);
-      const textArr = Array.from(testScrollText).map(char=>char.charCodeAt(0));
-      contents.set(textArr, romConstants.titleScrollingTextStartAddress);
-
-      //contents.set(encodedIntro.scrollingText, romConstants.titleScrollingTextStartAddress);
+      contents.set(
+        encodedIntro.scrollingText, 
+        romConstants.titleScrollingTextStartAddress);
+      
 
       if(!environment.production) {
-        let scollBytes = contents.slice(romConstants.titleScrollingTextStartAddress, romConstants.titleScrollingTextEndAddress);      
-        console.log('Replaced Scroll Text:', String.fromCharCode(...Array.from(scollBytes)));
+        let scollBytes = contents.slice(
+          romConstants.titleScrollingTextStartAddress, 
+          romConstants.titleScrollingTextEndAddress);
+        console.log(
+          'Replaced Scroll Text:', 
+          String.fromCharCode(...Array.from(scollBytes)));
+      }
+  }
+
+  /**
+   * Replace the lines of text in the middle of the initial
+   * startup screen with the text specified by the game.
+   */
+  replaceTitleScreenIntroText(
+    contents: Uint8Array,
+    encodedIntro: EncodedIntro,
+    romConstants: AllRomConstants) {
+      if(!environment.production) {
+        let introBytes = contents.slice(
+          romConstants.introTextStartAddress, 
+          romConstants.introTextEndAddress);
+        console.log(
+          'Intro Text:', 
+          String.fromCharCode(...Array.from(introBytes)));
       }
 
+      contents.set(
+        encodedIntro.introText, 
+        romConstants.introTextStartAddress);
+      
+
+      if(!environment.production) {
+        let introBytes = contents.slice(
+          romConstants.introTextStartAddress, 
+          romConstants.introTextEndAddress);
+        console.log(
+          'New Intro Text:', 
+          String.fromCharCode(...Array.from(introBytes)));
+      }
+  
   }
 
   /**
@@ -360,6 +413,7 @@ export class RomService {
       this.replaceCategoryNameLengths(contents, encodedGame.categories, constants);
 
       this.replaceTitleScreenScrollingText(contents, encodedGame.intro, constants);
+      this.replaceTitleScreenIntroText(contents, encodedGame.intro, constants);
 
       this.writeBlob(contents);
     });

@@ -34,6 +34,7 @@ export class ConfigService {
     reader.onloadend = pe => {
       const json = JSON.parse(reader.result as string);
       const config = this.updateConfigThroughVersions(json);
+      console.log(config);
       this.store.dispatch(new SetConfig(config));
     };
     const text = reader.readAsText(file);
@@ -63,10 +64,12 @@ export class ConfigService {
 
     while(versionChanges[config.version]) {
       const version = config.version;
-      config = versionChanges[config.version](config);
+      config = { ...versionChanges[config.version](config), version: versionProgressionMap[config.version] };
+
       if(version === config.version) {
-        throw new Error('Version not changed while updating config.  This causes an infinite loop without this error.');
+        throw new Error('Config not updating properly.');
       }
+
     }
 
     if(!environment.production) {
@@ -104,12 +107,15 @@ const versionChanges: { [key:string]: (config: WoFConfig)=>WoFConfig } = {
    * to the game config entry
    */
   '1.0': (config: WoFConfig)=>{
-      const newConfig = {...config, version: versionProgressionMap[config.version] };
+      const newConfig = {...config };
       newConfig.games = newConfig.games.map(game=>(
         {
           ...game,
-          scrollingText: '',
-          introText: new Array(3).fill(''),
+          game: {
+            ...game.game,
+            scrollingText: '',
+            introText: new Array(3).fill(''),
+          }
         }));
       return newConfig;
     }

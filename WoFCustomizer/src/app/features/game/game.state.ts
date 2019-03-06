@@ -18,6 +18,14 @@ export class GameState {
     return !!state.name;
   }
 
+  @Selector() static scrollingText(state: Game) {
+    return state.scrollingText;
+  }
+
+  @Selector() static introText(state: Game) {
+    return state.introText;
+  }
+
   @Action(ResetGame)
   ResetGame(ctx: StateContext<Game>) {
     ctx.setState({
@@ -44,7 +52,8 @@ export class GameState {
   @Action(SetIntroText)
   SetIntroText(ctx: StateContext<Game>, action: SetIntroText) {
     const newState = { ...ctx.getState() };
-    newState.introText = action.payload.text;
+    newState.introText[action.payload.index] = action.payload.text;
+    console.log('Intro text now:', newState);
     ctx.setState(newState);
   }
 

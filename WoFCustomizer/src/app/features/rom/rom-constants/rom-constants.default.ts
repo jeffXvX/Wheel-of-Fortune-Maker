@@ -23,4 +23,6 @@ export const defaultRomConstants = (): RomConstants=>  ({
     introTextStartAddress: 0,
     introTextLength: 0,
     introTextWhiteSpaceChar: '',
+    introTextLine1EndCharacters: [],
+    introTextLine2EndCharacters: [],
 });
