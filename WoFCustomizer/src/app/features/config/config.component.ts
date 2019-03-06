@@ -28,10 +28,7 @@ export class ConfigComponent implements OnInit {
   romIsLoaded$: Observable<boolean>;
   sanitizedRomFile$: Observable<SafeUrl>;  
 
-
   selectedGameIdForRom: number;
-
-
 
   changeConfigFileName(event: Event) {
     const name = (event.target as HTMLInputElement).value;

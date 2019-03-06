@@ -29,7 +29,20 @@ export interface RomConstants {
     categoryUnusedSpaceValue: number;
   
     // category name lengths
-    categoryNameLengthsStartAddress: number;  
+    categoryNameLengthsStartAddress: number;
+    
+    // title screen
+    titleScrollingTextStartAddress: number;   
+    titleScrollingTextLength: number;
+    titleScrollingTextWhiteSpaceChar: string;
+
+    // intro screen
+    introTextStartAddress: number;
+    introTextLength: number;
+    introTextWhiteSpaceChar: string;
+    introTextLine1EndCharacters: number[];
+    introTextLine2EndCharacters: number[];
+
 }
 
 export interface RomCalculatedConstants {
@@ -38,6 +51,8 @@ export interface RomCalculatedConstants {
     categoryPointersEndAddress: number;
     categoryNamesEndAddress: number;
     categoryNameLengthsEndAddress: number;
+    titleScrollingTextEndAddress: number;
+    introTextEndAddress: number;
 }
 
 export interface AllRomConstants extends RomConstants, RomCalculatedConstants {}

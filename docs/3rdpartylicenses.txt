@@ -346,6 +346,8 @@ MIT
 
 @angular/material/divider
 
+@angular/material/card
+
 @angular/material/progress-bar
 
 @angular/material/expansion

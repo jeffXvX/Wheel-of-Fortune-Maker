@@ -13,3 +13,13 @@ export class SetGame {
 export class ResetGame {
     static type = "[Game] Reset Game";
 }
+
+export class SetIntroText {
+    static type = "[Game] Set Intro Text";
+    constructor(public payload: { text: string, index: number }) {}    
+}
+
+export class SetScrollingText {
+    static type = "[Game] Set Scrolling Text";
+    constructor(public payload: { text: string }) {}        
+}

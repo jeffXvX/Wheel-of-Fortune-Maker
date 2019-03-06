@@ -18,7 +18,13 @@ import { AllRomConstants } from './rom-constants/rom-constants.model';
 import { ErrorHandlingService } from '../error-handling/error-handling.service';
 import { AppErrorCode, AppErrorStatus, AppError, AppErrorMessages } from '../error-handling/error/error.model';
 import { RomConstantsService } from './rom-constants/rom-constants.service';
+import { EncodedIntro } from './encoder/encoded-intro.model';
 
+/**
+ * This service reads in an existing rom and combines it with 
+ * the chosen game's state to create the new custom rom with the
+ * changes as specfied by the game data.
+ */
 @Injectable()
 export class RomService {
   sanitizedRomFileSubject = new Subject<SafeUrl>();
@@ -50,9 +56,14 @@ export class RomService {
       
       this.store.dispatch(new SetRomContents({ contents: contents }));
     };
-    const text = reader.readAsArrayBuffer(file);
+    const buffer = reader.readAsArrayBuffer(file);
   }
 
+  /**
+   * Verify the md5 signature compared to known good values
+   * for a rom to be written to.
+   * @param contents The bytes to calculate the md5 of.
+   */
   verifyChecksum(contents: Uint8Array) {
     this.store.selectOnce(RomConstantsState.md5).subscribe(md5=>{
       const checksummer = new Md5();
@@ -309,6 +320,73 @@ export class RomService {
   }
 
   /**
+   * Replace the text scrolling at the bottom of the screen 
+   * with the text specified in the game.
+   */
+  replaceTitleScreenScrollingText(
+    contents: Uint8Array,
+    encodedIntro: EncodedIntro,
+    romConstants: AllRomConstants) {
+
+      if(!environment.production) {
+        let scollBytes = contents.slice(
+          romConstants.titleScrollingTextStartAddress, 
+          romConstants.titleScrollingTextEndAddress);
+        
+        console.log(
+          'Scroll Text:', 
+          String.fromCharCode(...Array.from(scollBytes)));
+      }
+      
+      contents.set(
+        encodedIntro.scrollingText, 
+        romConstants.titleScrollingTextStartAddress);
+      
+
+      if(!environment.production) {
+        let scollBytes = contents.slice(
+          romConstants.titleScrollingTextStartAddress, 
+          romConstants.titleScrollingTextEndAddress);
+        console.log(
+          'Replaced Scroll Text:', 
+          String.fromCharCode(...Array.from(scollBytes)));
+      }
+  }
+
+  /**
+   * Replace the lines of text in the middle of the initial
+   * startup screen with the text specified by the game.
+   */
+  replaceTitleScreenIntroText(
+    contents: Uint8Array,
+    encodedIntro: EncodedIntro,
+    romConstants: AllRomConstants) {
+      if(!environment.production) {
+        let introBytes = contents.slice(
+          romConstants.introTextStartAddress, 
+          romConstants.introTextEndAddress);
+        console.log(
+          'Intro Text:', 
+          String.fromCharCode(...Array.from(introBytes)));
+      }
+
+      contents.set(
+        encodedIntro.introText, 
+        romConstants.introTextStartAddress);
+      
+
+      if(!environment.production) {
+        let introBytes = contents.slice(
+          romConstants.introTextStartAddress, 
+          romConstants.introTextEndAddress);
+        console.log(
+          'New Intro Text:', 
+          String.fromCharCode(...Array.from(introBytes)));
+      }
+  
+  }
+
+  /**
    * Replace a previously read in rom file's contents
    * with the data represented by a particular loaded config.
    * @param id The id of the config to replace the roms contents with.
@@ -318,21 +396,25 @@ export class RomService {
       this.store.selectOnce(RomState.contents),
       this.store.selectOnce(ConfigState.config),
       this.store.selectOnce(RomConstantsState.allConstants))
-    .subscribe(([contents, config, costants])=>{
+    .subscribe(([contents, config, constants])=>{
       console.log('Store data for Rom Writing:\n', config, contents);
       const game = config.games[id].game;
       const categories = config.games[id].categories;
       const puzzles = config.games[id].puzzles;
-      const encodedCategories = this.encoder.encodeGame(categories, puzzles);
+      const encodedGame = this.encoder.encodeGame(game, categories, puzzles, constants);
       
-      console.log('encoded game:\n',encodedCategories);
+      console.log('encoded game:\n',encodedGame);
 
-      this.replacePuzzleSolutions(contents, encodedCategories, costants);
-      const categoryPointers = this.replacePuzzlePointers(contents, encodedCategories, costants);
-      this.replaceCategoryPointers(contents, encodedCategories, categoryPointers, costants);
-      this.replaceNumberOfPuzzlesInCategories(contents, encodedCategories, costants);
-      this.replaceCategoryNames(contents, encodedCategories, costants);
-      this.replaceCategoryNameLengths(contents, encodedCategories, costants);
+      this.replacePuzzleSolutions(contents, encodedGame.categories, constants);
+      const categoryPointers = this.replacePuzzlePointers(contents, encodedGame.categories, constants);
+      this.replaceCategoryPointers(contents, encodedGame.categories, categoryPointers, constants);
+      this.replaceNumberOfPuzzlesInCategories(contents, encodedGame.categories, constants);
+      this.replaceCategoryNames(contents, encodedGame.categories, constants);
+      this.replaceCategoryNameLengths(contents, encodedGame.categories, constants);
+
+      this.replaceTitleScreenScrollingText(contents, encodedGame.intro, constants);
+      this.replaceTitleScreenIntroText(contents, encodedGame.intro, constants);
+
       this.writeBlob(contents);
     });
   }
