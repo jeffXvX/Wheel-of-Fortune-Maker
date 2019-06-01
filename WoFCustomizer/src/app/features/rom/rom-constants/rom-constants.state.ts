@@ -2,7 +2,6 @@ import { State, Selector, Action, StateContext } from '@ngxs/store';
 import { RomConstants, AllRomConstants } from './rom-constants.model';
 import { SetRomConstants, ClearRomConstants } from './rom-constants.actions';
 import { defaultRomConstants } from './rom-constants.default';
-import { startTimeRange } from '@angular/core/src/profile/wtf_impl';
 
 @State<RomConstants>({
   name: 'romConstants',

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormArray, FormBuilder, FormControl } from '@angular/forms';
-import { MatTabChangeEvent } from '@angular/material';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Categories } from './categories.model';

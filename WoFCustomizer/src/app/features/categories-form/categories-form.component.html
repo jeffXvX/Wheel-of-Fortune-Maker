@@ -3,8 +3,26 @@
     <ng-container *ngFor="let category of categories; let i=index">
       <mat-tab [label]="category.value.name">
         <div class="container" >
-          <wof-category-control [formControlName]="i"></wof-category-control>
-          <wof-puzzles-form [categoryId]="category.value.id"></wof-puzzles-form>
+          <div>
+            <wof-category-control [formControlName]="i"></wof-category-control>
+
+            <mat-form-field>
+                <mat-hint>Number of Puzzles to Add</mat-hint>
+                <input 
+                  matInput 
+                  type="number" 
+                  min="1" 
+                  max="255" 
+                  [value]="numPuzzlesToAdd" 
+                  (change)="onPuzzlesToAddChange($event)"/>
+            </mat-form-field>
+            <button mat-button mat-stroked-button type="button" (click)="addPuzzles(category.value.id)">Add Puzzle(s)</button>
+          </div>
+      
+          <wof-puzzles-form 
+            [categoryId]="category.value.id"
+            [puzzlesToAdd]="addPuzzles$ | async">
+          </wof-puzzles-form>
           <!--
           <ng-template matTabContent> 
             <wof-category>

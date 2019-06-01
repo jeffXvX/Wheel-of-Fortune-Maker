@@ -14,6 +14,20 @@ import { PuzzlesFormModel } from './puzzles-form.model';
 export class PuzzlesFormComponent implements OnInit {
   @Input() categoryId: number;
 
+  @Input() set puzzlesToAdd(e: { catId: number, num: number}) {
+    if(e && e.catId === this.categoryId) {
+      for(let i=0;i<e.num;i++){
+        (this.puzzlesForm.get('puzzles') as FormArray).push(
+          this.fb.control({
+            line1:'',
+            line2:'',
+            line3:'',
+            line4:''
+          }));
+      }
+    }
+  }
+
   @Select(PuzzlesFormState.form) form$: Observable<PuzzlesFormModel>;
 
   puzzlesForm: FormGroup;
@@ -52,6 +66,7 @@ export class PuzzlesFormComponent implements OnInit {
       sub.unsubscribe();
     });
   }
+
 
   trackPuzzleFn(index, item) {
     return index;

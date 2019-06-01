@@ -5,7 +5,7 @@ import { CategoriesFormState } from './categories-form.state';
 import { Select } from '@ngxs/store';
 import { first } from 'rxjs/operators';
 import { CategoriesForm } from './categories-form.model';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 @Component({
   selector: 'wof-categories-form',
@@ -32,13 +32,25 @@ export class CategoriesFormComponent implements OnInit {
       });
   
     });
-    
 
     this.categoriesForm.valueChanges.subscribe(c=>{
       console.log('cat form changes', c);
     })
+  }
+  
+  numPuzzlesToAdd = 1;
 
-    //(this.categories.controls[0].value as Category).name
+  addPuzzles$ = new Subject<{catId: number, num: number}>();
+
+  onPuzzlesToAddChange(e) {
+    this.numPuzzlesToAdd = e.target.value;
+  }
+
+  addPuzzles(id: number) {
+    this.addPuzzles$.next({
+      catId: id,
+      num: this.numPuzzlesToAdd
+    });
   }
 
   onSubmit() {

@@ -10,7 +10,7 @@ import { BehaviorSubject } from 'rxjs';
 export class PuzzlePreviewComponent {
 
   @Input() set puzzleText(text:string[]) {
-    this.formatPuzzle(text);
+    this.formatPuzzle(text || []);
     //console.log(text.map(line=>line.split('')));
   }
 

@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, Input, ChangeDetectorRef } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
-import { MatSelectChange } from '@angular/material';
+import { MatSelectChange } from '@angular/material/select';
 import { GameConfig } from '../../game-config/game-config.model';
 
 @Component({

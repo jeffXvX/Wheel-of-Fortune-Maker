@@ -1,14 +1,20 @@
 <form [formGroup]="puzzlesForm" 
     [ngxsForm]="'puzzlesForm.'+categoryId" 
     (ngSubmit)="onSubmit()">
+
     <div class="puzzles-layout">
-        <div>
+        <div class="puzzles-scroll-container">
+            <!--
             <cdk-virtual-scroll-viewport 
-                itemSize="10"
+                itemSize="60"
+                minBufferPx="800"
                 style="height: 500px">
+            -->
                 <div class="puzzles-container" formArrayName="puzzles">
-                    <ng-container *cdkVirtualFor="let puzzle of puzzles; let i=index;trackBy: trackPuzzleFn">
-                        Form control {{i}}
+                    <!--
+                    <ng-container *cdkVirtualFor="let puzzle of puzzles; let i=index;trackBy: trackPuzzleFn; templateCacheSize: 0">
+                    -->
+                    <ng-container *ngFor="let puzzle of puzzles; let i=index;trackBy: trackPuzzleFn">
                         <wof-puzzle-control
                             [control]="puzzle" 
                             [idx]="i"
@@ -17,7 +23,9 @@
                         </wof-puzzle-control>
                     </ng-container>
                 </div>
+            <!--
             </cdk-virtual-scroll-viewport>
+            -->
         </div>
         <div class="puzzle-preview-container">
             <wof-puzzle-preview [puzzleText]="previewingText">
