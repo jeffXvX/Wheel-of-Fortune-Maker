@@ -6,9 +6,10 @@ import { MaterialComponentsModule } from '../../material-components/material-com
 import { PuzzlesFormComponent } from './puzzles-form.component';
 import { PuzzleControlComponent } from './puzzle-control/puzzle-control.component';
 import { PuzzlePreviewComponent } from './puzzle-preview/puzzle-preview.component';
+import { PuzzleControlFormatFilterDirective } from './puzzle-control/puzzle-control-format-filter/puzzle-control-format-filter.directive';
 
 @NgModule({
-  declarations: [PuzzlesFormComponent, PuzzleControlComponent, PuzzlePreviewComponent],
+  declarations: [PuzzlesFormComponent, PuzzleControlComponent, PuzzlePreviewComponent, PuzzleControlFormatFilterDirective],
   imports: [
     CommonModule,
     MaterialComponentsModule,
