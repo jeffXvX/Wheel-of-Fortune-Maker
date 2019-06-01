@@ -13,8 +13,8 @@ import { RomService } from '../rom/rom.service';
   styleUrls: ['./config.component.css']
 })
 export class ConfigComponent implements OnInit {
-  @ViewChild('configDownloadLink') configDownloadLink: ElementRef;
-  @ViewChild('romDownloadLink') romDownloadLink: ElementRef;
+  @ViewChild('configDownloadLink', { static: true }) configDownloadLink: ElementRef;
+  @ViewChild('romDownloadLink', { static: true }) romDownloadLink: ElementRef;
 
   config$: Observable<WoFConfig>;
   games$: Observable<Game[]>;

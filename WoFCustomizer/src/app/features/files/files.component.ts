@@ -23,7 +23,7 @@ export class FilesComponent implements OnInit {
 
   @Select(ConfigState.lastId) lastId$: Observable<number>;
 
-  @ViewChild('configDownloadLink') configDownloadLink: ElementRef;
+  @ViewChild('configDownloadLink', { static: true }) configDownloadLink: ElementRef;
 
   sanitizedConfigFileSubject = new Subject<SafeUrl>();
 
