@@ -9,6 +9,8 @@ import { HomeModule } from '../features/home/home.module';
 import { RomModule } from '../features/rom/rom.module';
 import { ErrorHandlingModule } from '../features/error-handling/error-handling.module';
 import { DialogHandlingModule } from '../features/dialog-handling/dialog-handling.module';
+import { GameFormModule } from '../features/game-form/game-form.module';
+import { CategoriesFormModule } from '../features/categories-form/categories-form.module';
 
 @NgModule({
   declarations: [LayoutComponent],
@@ -21,7 +23,10 @@ import { DialogHandlingModule } from '../features/dialog-handling/dialog-handlin
     ConfigModule,
     RomModule,
     ErrorHandlingModule,
-    DialogHandlingModule
+    DialogHandlingModule,
+
+    GameFormModule,
+    CategoriesFormModule,
   ],
   exports: [LayoutComponent]
 })

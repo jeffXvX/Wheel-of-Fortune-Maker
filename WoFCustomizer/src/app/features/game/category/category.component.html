@@ -1,4 +1,4 @@
-<form (submit)="onSubmit($event)">
+<form [formGroup]="categoryGroup" (ngSubmit)="onSubmit($event)">
   <mat-form-field>
       <mat-hint>7 characters max</mat-hint>
       <input 
@@ -6,8 +6,7 @@
         type="text"
         maxlength="7" 
         placeholder="Category Name" 
-        [value]="category.name" 
-        (change)="onNameChange($event)"/>
+        formControlName="name"/>
   </mat-form-field>
   <button mat-button mat-stroked-button type="button" (click)="addPuzzles()">Add Puzzle(s)</button>
   <mat-form-field>
@@ -46,11 +45,19 @@ For now this works well enough for the requirements.
   style="height:500px">
   <ul >
     <li *cdkVirtualFor="let puzzle of puzzles$ | async; let i = index" >
+      <wof-puzzle-input></wof-puzzle-input>
+      <!--
+        [puzzle]="puzzle" 
+        [puzzleNum]="i+1" 
+        [categoryId]="category.id"
+      -->
+      <!--
       <wof-puzzle 
         [puzzle]="puzzle" 
         [puzzleNum]="i+1" 
         [categoryId]="category.id">
       </wof-puzzle>
+      -->
     </li>
   </ul>
 </cdk-virtual-scroll-viewport>

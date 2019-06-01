@@ -1,6 +1,6 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
 import { Puzzle, line1MaxLength, line2MaxLength, line3MaxLength, line4MaxLength } from '../puzzle/puzzle.model';
-import { AddPuzzles, SetPuzzleAnswerLine, DeletePuzzle, SetPuzzles, ResetPuzzles } from './puzzles.actions';
+import { AddPuzzles, SetPuzzleAnswerLine, DeletePuzzle, SetPuzzles, ResetPuzzles, SetPuzzleAnswer } from './puzzles.actions';
 import { Puzzles } from './puzzles.model';
 import { maxPuzzlesPerCategory } from '../category/category.model';
 import { defaultPuzzle } from '../puzzle/default-puzzle.model';
@@ -111,6 +111,63 @@ export class PuzzlesState {
       }
       default: { break; }
     }
+
+    newState[index] = puzzle;
+
+    ctx.setState({
+      ...state,
+      [action.catId]: newState
+    });
+  }
+
+  @Action(SetPuzzleAnswer)
+  setAnswer(ctx: StateContext<Puzzles>, action: SetPuzzleAnswer) {
+    console.log('Setting answer:', action.answer);
+    const state = ctx.getState();
+    const index = state[action.catId].findIndex(puzzle=>puzzle===action.puzzle);
+    const puzzle = { ...state[action.catId][index] };
+    const newState = [...state[action.catId]];
+
+    switch(action.answer.length) {
+      case 0: { 
+        puzzle.line1 = ''; 
+        puzzle.line2 = ''; 
+        puzzle.line3 = ''; 
+        puzzle.line4 = ''; 
+        break; 
+      }
+      case 1: { 
+        puzzle.line1 = ''; 
+        puzzle.line2 = action.answer[0].substr(0,line2MaxLength); 
+        puzzle.line3 = ''; 
+        puzzle.line4 = ''; 
+        break; 
+      }
+      case 2: { 
+        puzzle.line1 = ''; 
+        puzzle.line2 = action.answer[0].substr(0,line2MaxLength); 
+        puzzle.line3 = action.answer[1].substr(0,line3MaxLength);
+        puzzle.line4 = ''; 
+        break; 
+      }
+      case 3: { 
+        puzzle.line1 = action.answer[0].substr(0,line1MaxLength);
+        puzzle.line2 = action.answer[1].substr(0,line2MaxLength); 
+        puzzle.line3 = action.answer[2].substr(0,line3MaxLength);
+        puzzle.line4 = ''; 
+        break; 
+      }
+      case 4: { 
+        puzzle.line1 = action.answer[0].substr(0,line1MaxLength);
+        puzzle.line2 = action.answer[1].substr(0,line2MaxLength);
+        puzzle.line3 = action.answer[2].substr(0,line3MaxLength);
+        puzzle.line4 = action.answer[3].substr(0,line4MaxLength);
+        break; 
+      }
+      default: { break; }
+    }
+
+    console.log('Puzzle:', puzzle);
 
     newState[index] = puzzle;
 

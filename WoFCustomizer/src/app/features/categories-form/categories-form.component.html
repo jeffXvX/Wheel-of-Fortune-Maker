@@ -1,0 +1,32 @@
+<form [formGroup]="categoriesForm" ngxsForm="categoriesForm" (ngSubmit)="onSubmit()">
+  <mat-tab-group formArrayName="categories">  
+    <ng-container *ngFor="let category of categories; let i=index">
+      <mat-tab [label]="category.value.name">
+        <div class="container" >
+          <wof-category-control [formControlName]="i"></wof-category-control>
+          <wof-puzzles-form [categoryId]="category.value.id"></wof-puzzles-form>
+          <!--
+          <ng-template matTabContent> 
+            <wof-category>
+            </wof-category>
+          </ng-template>
+          -->
+        </div> 
+      </mat-tab>
+    </ng-container>
+
+  </mat-tab-group>
+
+<!--
+  <ng-container *ngIf="categoriesControls$ | async">
+    <div formArrayName="categories">
+      <ng-container *ngFor="let control of categoriesControls.controls; let i = index">
+        <div>
+          <textarea [formControlName]="i"></textarea>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+-->
+  <button type="submit">Submit</button>
+</form>

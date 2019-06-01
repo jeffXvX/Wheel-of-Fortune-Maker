@@ -1,8 +1,9 @@
 import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Category, maxPuzzlesPerCategory } from './category.model';
 import { CategoryService } from './category.service';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { Puzzle } from '../puzzle/puzzle.model';
+import { FormGroup, FormControl } from '@angular/forms';
 
 @Component({
   selector: 'wof-category',
@@ -11,19 +12,36 @@ import { Puzzle } from '../puzzle/puzzle.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CategoryComponent implements OnInit {
-  @Input() category: Category;
+  //@Input() 
+  category: Category;
   puzzles$: Observable<Puzzle[]>;
   numPuzzles$: Observable<number>;
 
   numPuzzlesToAdd = 1;
   maxPuzzles = maxPuzzlesPerCategory;
+
+  categoryGroup = new FormGroup({
+    name: new FormControl(''),
+  });
+
+  sub: Subscription;
   
   constructor(
     private categoryService: CategoryService) { }
 
   ngOnInit() {
-    this.puzzles$ = this.categoryService.puzzles$(this.category.id);
-    this.numPuzzles$ = this.categoryService.numPuzzles$(this.category.id);
+    this.sub = 
+    this.categoryService.selectedCategory$.subscribe(c=>{
+      this.category = c;
+      this.puzzles$ = this.categoryService.puzzles$(this.category.id);
+      this.numPuzzles$ = this.categoryService.numPuzzles$(this.category.id);
+      console.log('cat selected', c)
+    });
+  }
+
+  ngOnDestroy() {
+    console.log('Destroying');
+    this.sub.unsubscribe();
   }
 
   onPuzzlesToAddChange(e) {
@@ -31,7 +49,7 @@ export class CategoryComponent implements OnInit {
   }
 
   onNameChange(e) {
-    this.categoryService.changeCategoryName(this.category, e.target.value);
+    //this.categoryService.changeCategoryName(this.category, e.target.value);
   }
 
   /**

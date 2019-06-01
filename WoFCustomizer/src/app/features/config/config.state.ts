@@ -1,11 +1,11 @@
 import { State, Selector, Action, StateContext, Store } from '@ngxs/store';
-import { WoFConfig, GameConfig } from './config.model';
+import { WoFConfig } from './config.model';
 import { defaultWoFConfig } from './default-config.model';
 import { SetConfig, SelectGameConfig, AddGameConfig, DeleteGameConfig, CreateConfig } from './config.actions';
 import { SetGame, SetGameName, ResetGame, SetScrollingText, SetIntroText } from '../game/game.actions';
 import { SetCategories, ChangeCategoryName, ResetCategories } from '../game/categories/categories.actions';
 import { SetPuzzles, AddPuzzles, DeletePuzzle, SetPuzzleAnswerLine, ResetPuzzles } from '../game/puzzles/puzzles.actions';
-import { copyGame, Game } from '../game/game.model';
+import { copyGame, Game, GameFormState } from '../game/game.model';
 import { copyCategories, Categories } from '../game/categories/categories.model';
 import { copyPuzzles, Puzzles } from '../game/puzzles/puzzles.model';
 import { defaultGame } from '../game/default-game.model';
@@ -14,6 +14,11 @@ import { defaultCategories } from '../game/categories/default_categories.model';
 import { GameState } from '../game/game.state';
 import { CategoriesState } from '../game/categories/categories.state';
 import { PuzzlesState } from '../game/puzzles/puzzles.state';
+import { GameConfig } from '../game-config/game-config.model';
+import { LoadGameConfig } from '../game-config/game-config.actions';
+import { LoadGameForm } from '../game-form/game-form.actions';
+import { LoadCategoriesForm } from '../categories-form/categories-form.actions';
+import { LoadPuzzles } from '../puzzles-form/puzzles-form.actions';
 ​
 @State<WoFConfig>({
   name: 'config',
@@ -105,6 +110,22 @@ export class ConfigState {
     asyncActions.push(new SetGame(game));
     asyncActions.push(new SetCategories(categories));
     asyncActions.push(new SetPuzzles(puzzles));
+
+    asyncActions.push(new LoadGameConfig({ config: 
+      { 
+        game: game,
+        puzzles: puzzles,
+        categories: categories 
+      } 
+    } ));
+
+    asyncActions.push(new LoadGameForm({ game: game}));
+    asyncActions.push(new LoadCategoriesForm({ 
+      categories: categories,
+      puzzles: puzzles
+    }));
+
+    asyncActions.push(new LoadPuzzles({ puzzles: puzzles }))
 
     return ctx.dispatch(asyncActions);
   }

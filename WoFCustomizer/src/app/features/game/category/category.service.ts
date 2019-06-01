@@ -6,6 +6,7 @@ import { PuzzlesState } from '../puzzles/puzzles.state';
 import { ChangeCategoryName } from '../categories/categories.actions';
 import { Category } from './category.model';
 import { AddPuzzles } from '../puzzles/puzzles.actions';
+import { CategoryState } from './category.state';
 
 @Injectable()
 export class CategoryService {
@@ -19,6 +20,8 @@ export class CategoryService {
   addPuzzles(id: number, numPuzzles: number) {
     this.store.dispatch(new AddPuzzles(id, numPuzzles));
   }
+
+  selectedCategory$ = this.store.select(CategoryState.category);
 
   category$(id:number) {
     return this.store.select(CategoriesState.category)

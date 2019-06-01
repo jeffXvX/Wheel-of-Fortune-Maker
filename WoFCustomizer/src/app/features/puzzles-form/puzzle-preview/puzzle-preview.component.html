@@ -1,0 +1,7 @@
+<div class="puzzle-box">
+    <ng-container *ngFor="let line of puzzleText$ | async">
+        <div class="puzzle-line">
+            <pre class="puzzle-box" *ngFor="let letter of line">{{letter}}</pre>
+        </div>
+    </ng-container>
+</div>

@@ -1,0 +1,24 @@
+div.puzzle-box {
+    display: flex;
+    flex-direction: column;
+}
+
+div.puzzle-line {
+    display: flex;
+    flex-direction: row;
+}
+
+.puzzle-line:first-child > .puzzle-box:first-child,
+.puzzle-line:first-child > .puzzle-box:nth-child(1n+13),
+.puzzle-line:last-child > .puzzle-box:first-child,
+.puzzle-line:last-child > .puzzle-box:nth-child(1n+13)  {
+    background-color:darkslategray;
+    color:red;
+}
+
+pre.puzzle-box {
+    border: 1px black solid;
+    margin: 0;
+    font-size: xx-large;
+    font-size: -webkit-xxx-large;
+}

@@ -7,7 +7,7 @@ import { PuzzlesState } from '../game/puzzles/puzzles.state';
 import { Game } from '../game/game.model';
 import { Category } from '../game/category/category.model';
 import { Puzzles } from '../game/puzzles/puzzles.model';
-import { GameConfig } from '../config/config.model';
+import { GameConfig } from '../game-config/game-config.model';
 
 @Injectable()
 export class FilesService {

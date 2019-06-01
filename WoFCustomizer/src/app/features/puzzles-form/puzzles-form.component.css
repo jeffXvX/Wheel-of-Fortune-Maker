@@ -1,0 +1,15 @@
+div.puzzles-container {
+    display: flex;
+    flex-direction: column;
+    justify-self: flex-start;
+}
+
+div.puzzles-layout {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.puzzles-layout > div {
+    width: 50%;
+}

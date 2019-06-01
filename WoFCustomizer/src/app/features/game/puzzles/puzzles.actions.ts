@@ -28,3 +28,11 @@ export class SetPuzzleAnswerLine {
         public line: number, 
         public answer: string) {}    
 }
+
+export class SetPuzzleAnswer {
+    static type = "[Puzzles] Set Answer";
+    constructor(
+        public catId: number,
+        public puzzle: Puzzle, 
+        public answer: string[]) {}    
+}

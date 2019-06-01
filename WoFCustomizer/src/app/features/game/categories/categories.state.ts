@@ -1,7 +1,8 @@
-import { State, Selector, Action, StateContext } from '@ngxs/store';
+import { State, Selector, Action, StateContext, Actions } from '@ngxs/store';
 import { Category, maxCategoryNameLength } from '../category/category.model';
 import { defaultCategories } from './default_categories.model';
-import { ChangeCategoryName, SetCategories, ResetCategories } from './categories.actions';
+import { ChangeCategoryName, SetCategories, ResetCategories, SelectCategory } from './categories.actions';
+import { SetCategory } from '../category/category.actions';
 ​
 @State<Category[]>({
   name: 'categories',
@@ -29,6 +30,7 @@ export class CategoriesState {
   @Action(SetCategories)
   SetCategories(ctx: StateContext<Category[]>, action: SetCategories) {
     ctx.setState(action.categories);
+    ctx.dispatch(new SetCategory({ category: action.categories[0] }));    
   }
 
   @Action(ChangeCategoryName)
@@ -39,6 +41,12 @@ export class CategoriesState {
     category.name = action.name.substr(0, maxCategoryNameLength);
     state[idx] = category;
     ctx.setState(state);
+  }
+
+  @Action(SelectCategory)
+  selectCategory(ctx: StateContext<Category[]>, action: SelectCategory) {
+    let categories = ctx.getState();
+    ctx.dispatch(new SetCategory({ category: categories[action.payload.index] }));
   }
 
 }

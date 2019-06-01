@@ -1,18 +1,22 @@
 export interface Game {
-    id: number;
-    name: string;
-    scrollingText: string;
-    introText: string[];
-    categoryIds: number[];
+    id: number,
+    name: string,
+    scrollingText: string,
+    introText: string[],
+    categoryIds: number[]
+}
+
+export interface GameFormState {
+    gameForm: Game
 }
 
 export function copyGame(game:Game) {
-    return { 
+    return {
         name: game.name, 
         id: game.id,
         scrollingText: game.scrollingText,
         introText: game.introText,
-        categoryIds: [...game.categoryIds] 
+        categoryIds: [...game.categoryIds]         
     };
 }
 

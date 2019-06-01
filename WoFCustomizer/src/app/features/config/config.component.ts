@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { SafeUrl } from '@angular/platform-browser';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject } from 'rxjs';
 import { tap, map } from 'rxjs/operators';
 import { ConfigService } from './config.service';
 import { WoFConfig } from './config.model';
@@ -97,6 +97,16 @@ export class ConfigComponent implements OnInit {
     this.romService.readRom(file);
     this.romFileName$.next(file.name);
     (e.target as HTMLInputElement).value = '';
+  }
+
+  /**
+   * TEMP
+   */
+
+  puzzleText$ = new BehaviorSubject<string[]>([]);
+
+  onPuzzleChanged(puzzle: string[]) {
+    this.puzzleText$.next(puzzle);
   }
 
 }

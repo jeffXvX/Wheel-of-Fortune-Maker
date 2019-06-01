@@ -1,4 +1,5 @@
-import { WoFConfig, GameConfig } from "./config.model";
+import { WoFConfig } from "./config.model";
+import { GameConfig } from './../game/games/games.state';
 
 export class CreateConfig {
     static readonly type = '[Config] Create Config';
