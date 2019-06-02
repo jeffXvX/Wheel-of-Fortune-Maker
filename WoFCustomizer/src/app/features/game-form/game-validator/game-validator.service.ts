@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngxs/store';
-import { CategoriesService } from './../categories/categories.service';
-import { GameService } from './../game.service';
-import { PuzzleService } from '../puzzle/puzzle.service';
-import { Puzzles } from '../puzzles/puzzles.model';
-import { Puzzle } from '../puzzle/puzzle.model';
+import { Puzzles } from '../../game/puzzles/puzzles.model';
+import { Puzzle } from '../../game/puzzle/puzzle.model';
+//import { CategoriesService } from './../categories/categories.service';
+//import { GameService } from './../game.service';
+//import { PuzzleService } from '../puzzle/puzzle.service';
 
 @Injectable()
 export class GameValidatorService {
@@ -13,9 +13,10 @@ export class GameValidatorService {
 
   constructor(
     private store: Store,
-    private gameService: GameService, 
-    private categoriesService: CategoriesService, 
-    private puzzzleService: PuzzleService) {
+    //private gameService: GameService, 
+    //private categoriesService: CategoriesService, 
+    //private puzzzleService: PuzzleService
+    ) {
     }
 
   /**

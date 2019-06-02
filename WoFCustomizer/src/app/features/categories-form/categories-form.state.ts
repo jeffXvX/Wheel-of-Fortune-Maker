@@ -1,9 +1,9 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { CategoriesForm } from './categories-form.model';
+import { CategoriesFormModel } from './categories-form.model';
 import { LoadCategoriesForm } from './categories-form.actions';
 import { copyCategories } from '../game/categories/categories.model';
 ​
-@State<CategoriesForm>({
+@State<CategoriesFormModel>({
   name: 'categoriesForm',
   defaults: {
     dirty: false,
@@ -13,18 +13,21 @@ import { copyCategories } from '../game/categories/categories.model';
   }
 })
 export class CategoriesFormState {
-  @Selector() static form(state: CategoriesForm) {
+  @Selector() static state(state: CategoriesFormModel) {
     return state;
   }
 
+  @Selector() static loaded(state: CategoriesFormModel) {
+    return state.model.categories.length > 0;
+  } 
+
   @Action(LoadCategoriesForm)
-  loadGameConfig(ctx: StateContext<CategoriesForm>, action: LoadCategoriesForm) {
+  loadCategoriesForm(ctx: StateContext<CategoriesFormModel>, action: LoadCategoriesForm) {
     console.log('loading categories form', action.payload.categories);
     
     let catsAndPuzzles = action.payload.categories.map(category=>({
       name: category.name,
-      id: category.id, 
-      puzzles: action.payload.puzzles[category.id]
+      id: category.id
     }));
 
     ctx.setState({

@@ -1,6 +1,6 @@
 import { Game } from "../game/game.model";
 
-export interface GameForm {
+export interface GameFormModel {
     dirty: false,
     status: "",
     errors: {},

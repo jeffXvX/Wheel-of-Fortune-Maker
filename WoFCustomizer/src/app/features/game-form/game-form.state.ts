@@ -1,9 +1,9 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { GameForm } from './game-form.model';
+import { GameFormModel } from './game-form.model';
 import { LoadGameForm } from './game-form.actions';
 import { copyGame } from '../game/game.model';
 ​
-@State<GameForm>({
+@State<GameFormModel>({
   name: 'gameForm',
   defaults: {
     dirty: false,
@@ -19,12 +19,16 @@ import { copyGame } from '../game/game.model';
   }
 })
 export class GameFormState {
-  @Selector() static config(state: GameForm) {
+  @Selector() static state(state: GameFormModel) {
     return state;
   } 
+
+  @Selector() static loaded(state: GameFormModel) {
+    return state.model.id !== null;
+  }
   
   @Action(LoadGameForm)
-  loadGameConfig(ctx: StateContext<GameForm>, action: LoadGameForm) {
+  loadGameConfig(ctx: StateContext<GameFormModel>, action: LoadGameForm) {
     console.log('loading game form', action.payload.game);
     ctx.setState({
         ...ctx.getState(),

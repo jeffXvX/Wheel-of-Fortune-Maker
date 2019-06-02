@@ -1,9 +1,0 @@
-<mat-form-field>
-  <mat-select placeholder="Edit Game..."
-    [disabled]="disabled"
-    [value]="selectedGame" 
-    (selectionChange)="onSelection($event)">
-    <mat-option [value]="defaultGameConfig">Add Game...</mat-option>
-    <mat-option *ngFor="let game of games" [value]="game">{{game.name}}</mat-option>
-  </mat-select>
-</mat-form-field>

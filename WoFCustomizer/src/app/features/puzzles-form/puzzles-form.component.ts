@@ -28,7 +28,7 @@ export class PuzzlesFormComponent implements OnInit {
     }
   }
 
-  @Select(PuzzlesFormState.form) form$: Observable<PuzzlesFormModel>;
+  @Select(PuzzlesFormState.state) form$: Observable<PuzzlesFormModel>;
 
   puzzlesForm: FormGroup;
 
@@ -66,7 +66,6 @@ export class PuzzlesFormComponent implements OnInit {
       sub.unsubscribe();
     });
   }
-
 
   trackPuzzleFn(index, item) {
     return index;

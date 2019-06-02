@@ -1,6 +1,6 @@
 import { Puzzles } from './../game/puzzles/puzzles.model';
 
-export class LoadPuzzles {
+export class LoadPuzzlesForm {
     static type = "[Puzzles Form] Load Puzzles";
 
     constructor(public payload: { puzzles: Puzzles}) {}

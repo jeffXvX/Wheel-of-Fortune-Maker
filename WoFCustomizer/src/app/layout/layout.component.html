@@ -1,23 +1,20 @@
-<mat-tab-group>
+<mat-tab-group (selectedTabChange)="onTabChange($event)">
   <mat-tab label="Home"> 
     <wof-home></wof-home>
   </mat-tab>
-  <mat-tab label="Config">
+  <mat-tab #configTab label="Config">
     <div class="container">
       <wof-config></wof-config>
     </div>
   </mat-tab>
   <mat-tab *ngIf="gameLoaded$ | async" label="Game"> 
     <div class="container">
-      <!--<wof-game></wof-game> -->
       <wof-game-form></wof-game-form>
     </div>
   </mat-tab>
   <mat-tab *ngIf="categoriesLoaded$ | async" label="Categories">
     <wof-categories-form></wof-categories-form>
-    <!-- <wof-categories></wof-categories>  -->
   </mat-tab>
-  <!--<mat-tab label="Puzzles"> <wof-game></wof-game> </mat-tab>-->
   <mat-tab label="Contestants"> Contestants </mat-tab>
 
   <mat-tab label="Errors"> 

@@ -1,8 +1,7 @@
 <mat-form-field>
   <textarea matInput
-    placeholder="Puzzle Solution"
+    placeholder="Puzzle {{idx + 1}} Solution"
     mat-autosize="false"
-    
     cdkAutosizeMinRows="4"
     cdkAutosizeMaxRows="4"
     maxlength="51"
@@ -13,5 +12,3 @@
     wofPuzzleInputFormatFilter
     ></textarea>
 </mat-form-field>
-
-<!-- value="{{initialAnswer}}" -->

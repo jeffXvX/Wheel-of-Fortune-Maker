@@ -1,4 +1,4 @@
-import { GameConfig } from "../game/games/games.state";
+import { GameConfig } from '../game-config/game-config.model';
 
 export interface WoFConfig {
     games: GameConfig[],

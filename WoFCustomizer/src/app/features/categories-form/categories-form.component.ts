@@ -4,7 +4,7 @@ import { Category } from '../game/category/category.model';
 import { CategoriesFormState } from './categories-form.state';
 import { Select } from '@ngxs/store';
 import { first } from 'rxjs/operators';
-import { CategoriesForm } from './categories-form.model';
+import { CategoriesFormModel } from './categories-form.model';
 import { Observable, Subject } from 'rxjs';
 
 @Component({
@@ -15,7 +15,7 @@ import { Observable, Subject } from 'rxjs';
 export class CategoriesFormComponent implements OnInit {
   categoriesForm: FormGroup;
 
-  @Select(CategoriesFormState.form) form$: Observable<CategoriesForm>;
+  @Select(CategoriesFormState.state) form$: Observable<CategoriesFormModel>;
 
   get categories() {
     return (this.categoriesForm.get('categories') as FormArray).controls;

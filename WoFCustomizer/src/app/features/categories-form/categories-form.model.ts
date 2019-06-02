@@ -6,11 +6,11 @@ export interface CategoryAndPuzzlesFormModel extends Category {
     puzzles: Puzzle[];
 }
 
-export interface CategoriesForm {
+export interface CategoriesFormModel {
     dirty: false,
     status: "",
     errors: {},
     model: { 
-        categories: CategoryAndPuzzlesFormModel[],
+        categories: Category[],
     },
 }
