@@ -10,3 +10,5 @@ export interface PuzzlesFormModel {
         },
     }
 }
+
+export const defaultPuzzlesFormModel = (): PuzzlesFormModel => ({});

@@ -1,11 +1,11 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { PuzzlesFormModel } from './puzzles-form.model';
-import { LoadPuzzlesForm } from './puzzles-form.actions';
+import { PuzzlesFormModel, defaultPuzzlesFormModel } from './puzzles-form.model';
+import { LoadPuzzlesForm, LoadDefaultPuzzlesForm } from './puzzles-form.actions';
 import { Puzzles } from '../game/puzzles/puzzles.model';
 ​
 @State<PuzzlesFormModel>({
   name: 'puzzlesForm',
-  defaults: {}
+  defaults: defaultPuzzlesFormModel()
 })
 export class PuzzlesFormState {
   @Selector() static state(state: PuzzlesFormModel) {
@@ -18,10 +18,15 @@ export class PuzzlesFormState {
   }
 
   @Action(LoadPuzzlesForm)
-  loadGameConfig(ctx: StateContext<PuzzlesFormModel>, action: LoadPuzzlesForm) {
+  loadPuzzlesForm(ctx: StateContext<PuzzlesFormModel>, action: LoadPuzzlesForm) {
     console.log('loading puzzles form', action.payload.puzzles);
     console.log('transformed puzzles',this.createPuzzlesForms(action.payload.puzzles))
     ctx.setState(this.createPuzzlesForms(action.payload.puzzles));
+  }
+
+  @Action(LoadDefaultPuzzlesForm)
+  loadDefaultPuzzlesForm(ctx: StateContext<PuzzlesFormModel>) {
+    ctx.setState(defaultPuzzlesFormModel());
   }
 
   private createPuzzlesForms(puzzles: Puzzles): PuzzlesFormModel {

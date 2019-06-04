@@ -1,16 +1,11 @@
 import { State, Selector, Action, StateContext } from '@ngxs/store';
-import { CategoriesFormModel } from './categories-form.model';
-import { LoadCategoriesForm } from './categories-form.actions';
+import { CategoriesFormModel, defaultCategoriesFormModel } from './categories-form.model';
+import { LoadCategoriesForm, LoadDefaultCategoriesForm } from './categories-form.actions';
 import { copyCategories } from '../game/categories/categories.model';
 ​
 @State<CategoriesFormModel>({
   name: 'categoriesForm',
-  defaults: {
-    dirty: false,
-    status: "",
-    errors: {},
-    model: { categories: [] }
-  }
+  defaults: defaultCategoriesFormModel()
 })
 export class CategoriesFormState {
   @Selector() static state(state: CategoriesFormModel) {
@@ -34,6 +29,11 @@ export class CategoriesFormState {
         ...ctx.getState(),
         model: { categories: catsAndPuzzles }
     });
+  }
+
+  @Action(LoadDefaultCategoriesForm)
+  loadDefaultCategoriesForm(ctx: StateContext<CategoriesFormModel>) {
+    ctx.setState(defaultCategoriesFormModel());
   }
 
   private createCategoriesForm(config: any) {

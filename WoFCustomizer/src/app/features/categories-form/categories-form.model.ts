@@ -14,3 +14,10 @@ export interface CategoriesFormModel {
         categories: Category[],
     },
 }
+
+export const defaultCategoriesFormModel = ():CategoriesFormModel => ({
+    dirty: false,
+    status: "",
+    errors: {},
+    model: { categories: [] }
+})

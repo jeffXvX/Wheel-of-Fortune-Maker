@@ -9,9 +9,9 @@ import { defaultGame } from '../game/default-game.model';
 import { defaultPuzzles } from '../game/puzzles/default_puzzles.model';
 import { defaultCategories } from '../game/categories/default_categories.model';
 import { GameConfig } from '../game-config/game-config.model';
-import { LoadGameForm } from '../game-form/game-form.actions';
-import { LoadCategoriesForm } from '../categories-form/categories-form.actions';
-import { LoadPuzzlesForm } from '../puzzles-form/puzzles-form.actions';
+import { LoadGameForm, LoadDefaultGameForm } from '../game-form/game-form.actions';
+import { LoadCategoriesForm, LoadDefaultCategoriesForm } from '../categories-form/categories-form.actions';
+import { LoadPuzzlesForm, LoadDefaultPuzzlesForm } from '../puzzles-form/puzzles-form.actions';
 ​
 @State<WoFConfig>({
   name: 'config',
@@ -36,15 +36,11 @@ export class ConfigState {
   CreateConfig(ctx: StateContext<WoFConfig>) {
     ctx.setState(defaultWoFConfig());
 
-    const resetActions = [];
-
-    /*
     const resetActions = [
-      new ResetGame(),
-      new ResetCategories(),
-      new ResetPuzzles()
+      LoadDefaultGameForm,
+      LoadDefaultCategoriesForm,
+      LoadDefaultPuzzlesForm
     ];
-    */
 
     return ctx.dispatch(resetActions);
   }
@@ -53,13 +49,11 @@ export class ConfigState {
   changeName(ctx: StateContext<WoFConfig>, action: SetConfig) {
     ctx.setState(action.payload);
 
-    const resetActions = [];
-    /*
-      new ResetGame(),
-      new ResetCategories(),
-      new ResetPuzzles()
+    const resetActions = [
+      LoadDefaultGameForm,
+      LoadDefaultCategoriesForm,
+      LoadDefaultPuzzlesForm
     ];
-    */
 
     return ctx.dispatch(resetActions);
   }
@@ -106,27 +100,8 @@ export class ConfigState {
         }));
     }
 
-    /*
-    asyncActions.push(new SetGame(game));
-    asyncActions.push(new SetCategories(categories));
-    asyncActions.push(new SetPuzzles(puzzles));
-    */
-
-    /*
-    asyncActions.push(new LoadGameConfig({ config: 
-      { 
-        game: game,
-        puzzles: puzzles,
-        categories: categories 
-      } 
-    } ));
-    */
-
     asyncActions.push(new LoadGameForm({ game: game}));
-    asyncActions.push(new LoadCategoriesForm({ 
-      categories: categories
-    }));
-
+    asyncActions.push(new LoadCategoriesForm({ categories: categories }));
     asyncActions.push(new LoadPuzzlesForm({ puzzles: puzzles }))
 
     return ctx.dispatch(asyncActions);
