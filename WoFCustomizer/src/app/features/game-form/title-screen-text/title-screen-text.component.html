@@ -1,0 +1,41 @@
+<mat-card>
+  <mat-card-title>Title Screen Text</mat-card-title>
+  <mat-card-content>
+    <div>
+      <mat-form-field>
+        <mat-hint>Line 1</mat-hint>
+        <input
+          matInput
+          (focus)="onFocus()"
+          [attr.maxlength]="maxLength - line2.length - line3.length"
+          [value]="line1"
+          (input)="onLine1Change($event)" 
+          type="text"/>
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field>
+        <mat-hint>Line 2</mat-hint>
+        <input 
+          matInput 
+          (focus)="onFocus()"
+          [attr.maxlength]="maxLength - line1.length - line3.length"
+          [value]="line2"
+          (input)="onLine2Change($event)" 
+          type="text"/>
+      </mat-form-field>
+    </div>
+    <div>
+      <mat-form-field>
+        <mat-hint>Line 3</mat-hint>
+        <input
+          matInput 
+          (focus)="onFocus()"
+          [attr.maxlength]="maxLength - line1.length - line2.length"
+          [value]="line3"
+          (input)="onLine3Change($event)" 
+          type="text"/>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+</mat-card>

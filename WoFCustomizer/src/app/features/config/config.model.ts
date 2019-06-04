@@ -1,12 +1,4 @@
-import { Game } from "../game/game.model";
-import { Category } from "../game/category/category.model";
-import { Puzzles } from "../game/puzzles/puzzles.model";
-
-export interface GameConfig {
-    game: Game,
-    categories: Category[],
-    puzzles: Puzzles
-}
+import { GameConfig } from '../game-config/game-config.model';
 
 export interface WoFConfig {
     games: GameConfig[],

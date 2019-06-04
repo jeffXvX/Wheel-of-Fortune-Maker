@@ -1,0 +1,14 @@
+<mat-card>
+  <mat-card-title>Scrolling Text</mat-card-title>
+    <mat-card-content>
+      <mat-form-field>
+        <mat-hint>Scrolling Text</mat-hint>
+        <input 
+          matInput
+          [attr.maxlength]="maxLength" 
+          type="text"
+          [value]="text"
+          (change)="onScrollingTextChange($event)" />
+      </mat-form-field>
+  </mat-card-content>
+</mat-card>

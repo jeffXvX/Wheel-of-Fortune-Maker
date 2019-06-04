@@ -1,19 +1,17 @@
 import { State, Selector, Action, StateContext, Store } from '@ngxs/store';
-import { WoFConfig, GameConfig } from './config.model';
+import { WoFConfig } from './config.model';
 import { defaultWoFConfig } from './default-config.model';
-import { SetConfig, SelectGameConfig, AddGameConfig, DeleteGameConfig, CreateConfig } from './config.actions';
-import { SetGame, SetGameName, ResetGame, SetScrollingText, SetIntroText } from '../game/game.actions';
-import { SetCategories, ChangeCategoryName, ResetCategories } from '../game/categories/categories.actions';
-import { SetPuzzles, AddPuzzles, DeletePuzzle, SetPuzzleAnswerLine, ResetPuzzles } from '../game/puzzles/puzzles.actions';
+import { SetConfig, SelectGameConfig, AddGameConfig, DeleteGameConfig, CreateConfig, SetGameConfig } from './config.actions';
 import { copyGame, Game } from '../game/game.model';
 import { copyCategories, Categories } from '../game/categories/categories.model';
 import { copyPuzzles, Puzzles } from '../game/puzzles/puzzles.model';
 import { defaultGame } from '../game/default-game.model';
 import { defaultPuzzles } from '../game/puzzles/default_puzzles.model';
 import { defaultCategories } from '../game/categories/default_categories.model';
-import { GameState } from '../game/game.state';
-import { CategoriesState } from '../game/categories/categories.state';
-import { PuzzlesState } from '../game/puzzles/puzzles.state';
+import { GameConfig } from '../game-config/game-config.model';
+import { LoadGameForm, LoadDefaultGameForm } from '../game-form/game-form.actions';
+import { LoadCategoriesForm, LoadDefaultCategoriesForm } from '../categories-form/categories-form.actions';
+import { LoadPuzzlesForm, LoadDefaultPuzzlesForm } from '../puzzles-form/puzzles-form.actions';
 ​
 @State<WoFConfig>({
   name: 'config',
@@ -39,9 +37,9 @@ export class ConfigState {
     ctx.setState(defaultWoFConfig());
 
     const resetActions = [
-      new ResetGame(),
-      new ResetCategories(),
-      new ResetPuzzles()
+      LoadDefaultGameForm,
+      LoadDefaultCategoriesForm,
+      LoadDefaultPuzzlesForm
     ];
 
     return ctx.dispatch(resetActions);
@@ -52,9 +50,9 @@ export class ConfigState {
     ctx.setState(action.payload);
 
     const resetActions = [
-      new ResetGame(),
-      new ResetCategories(),
-      new ResetPuzzles()
+      LoadDefaultGameForm,
+      LoadDefaultCategoriesForm,
+      LoadDefaultPuzzlesForm
     ];
 
     return ctx.dispatch(resetActions);
@@ -102,9 +100,9 @@ export class ConfigState {
         }));
     }
 
-    asyncActions.push(new SetGame(game));
-    asyncActions.push(new SetCategories(categories));
-    asyncActions.push(new SetPuzzles(puzzles));
+    asyncActions.push(new LoadGameForm({ game: game}));
+    asyncActions.push(new LoadCategoriesForm({ categories: categories }));
+    asyncActions.push(new LoadPuzzlesForm({ puzzles: puzzles }))
 
     return ctx.dispatch(asyncActions);
   }
@@ -119,7 +117,6 @@ export class ConfigState {
     ctx.setState({
       version: state.version,
       games: [...state.games, game],
-      //selectedGameIndex: state.selectedGameIndex,
     })
   }
 
@@ -130,61 +127,24 @@ export class ConfigState {
     ctx.setState({
       version: state.version,
       games: state.games.filter(gameConfig=> gameConfig.game.id != action.payload.id),
-      //selectedGameIndex: state.selectedGameIndex,
     });
   }
 
-  /*
-   * These reducers are responsible for 
-   * keeping the data inside the in memory 
-   * config synced with the data inside each
-   * reducer of the GameConfig chunks.
-   * 
-   * There is probably a better way to handle
-   * this but trying to edit the entire config
-   * in place leads to some really nasty reducers
-   * since so much of the data is deeply nested.
-   * 
-   * And this does somewhat violate the single 
-   * source of truth idea.  But this method 
-   * means the user doesn't have to explicitly 
-   * save a particular game back into the current
-   * config which is an undesirable interface.
-   * 
-   * So in order to make the user experience 
-   * better we get a little hacky.
-   */
+  @Action(SetGameConfig)
+  SetConfig(ctx: StateContext<WoFConfig>, action: SetGameConfig) {
+    const state = ctx.getState();
+    let idx = state.games.findIndex(
+      gameConfig=>gameConfig.game.id === action.payload.gameConfig.game.id);
+    let newState = {...state};
 
-  @Action([SetGameName, SetGame, SetScrollingText, SetIntroText])
-  updateGame(ctx: StateContext<WoFConfig>) {
-    const state = {...ctx.getState()};
-    state.games = [...state.games];
-    const game = this.store.selectSnapshot(GameState.game);
-    const idx = state.games.findIndex(gameConfig=>gameConfig.game.id === game.id);
-    state.games[idx].game = game;
-    ctx.setState(state);
-  }
-
-  @Action([ChangeCategoryName,SetCategories])
-  updateCategories(ctx: StateContext<WoFConfig>) {
-    const state = {...ctx.getState()};
-    state.games = [...state.games];
-    const game = this.store.selectSnapshot(GameState.game);
-    const categories = this.store.selectSnapshot(CategoriesState.categories);
-    const idx = state.games.findIndex(gameConfig=>gameConfig.game.id === game.id);
-    state.games[idx].categories = categories;
-    ctx.setState(state);
-  }
-
-  @Action([AddPuzzles, DeletePuzzle, SetPuzzles, SetPuzzleAnswerLine])
-  updatePuzzles(ctx: StateContext<WoFConfig>) {
-    const state = {...ctx.getState()};
-    state.games = [...state.games];
-    const game = this.store.selectSnapshot(GameState.game);
-    const puzzles = this.store.selectSnapshot(PuzzlesState.puzzles);
-    const idx = state.games.findIndex(gameConfig=>gameConfig.game.id === game.id);
-    state.games[idx].puzzles = puzzles;
-    ctx.setState(state);
+    console.log('setting game config to:', action.payload.gameConfig);
+    
+    if(idx >= 0) {
+      newState.games[idx] = action.payload.gameConfig;
+    }
+     
+    console.log('new state',newState);
+    ctx.setState(newState);
   }
   
   constructor(private store: Store) {}

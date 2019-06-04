@@ -19,6 +19,7 @@ import { ErrorHandlingService } from '../error-handling/error-handling.service';
 import { AppErrorCode, AppErrorStatus, AppError, AppErrorMessages } from '../error-handling/error/error.model';
 import { RomConstantsService } from './rom-constants/rom-constants.service';
 import { EncodedIntro } from './encoder/encoded-intro.model';
+import { EncodedGame } from './encoder/encoded-game.model';
 
 /**
  * This service reads in an existing rom and combines it with 
@@ -386,6 +387,132 @@ export class RomService {
   
   }
 
+
+  addCustomGameSizeCode(
+    contents: Uint8Array,
+    encodedGame: EncodedGame,
+    romConstants: AllRomConstants
+  ) {
+
+    const numberOfPuzzles = encodedGame.categories.reduce(
+      (totalPuzzles,cat)=>totalPuzzles + cat.puzzles.length
+      ,0);
+
+    /*
+     * ; Here we make sure that the puzzle markers have been initialized.  If $07FE
+     * ; and $07FF are equal to $5A5A, then initialization has already happened.
+     * ; Otherwise, we initialize the markers, and write $5A5A to that location.
+     *     LDA $07FE
+     *     CMP #$5A
+     *     BNE initialize
+     *     LDA $07FF
+     *     CMP #$5A
+     *     BNE initialize
+     *     JMP check
+     * initialize:
+     *     LDX #$00
+     *     LDA #$FF
+     * initloop:
+     *     STA $0780,X
+     *     INX
+     *     CPX #$7E
+     *     BNE initloop
+     *     LDA #$5A
+     *     STA $07FE
+     *     STA $07FF
+     * 
+     * ; This is the original game code that checks if all the puzzles have been used
+     * ; and resets them if they have.
+     * check:
+     *     LDX #$2F ; This needs to be the number of puzzles / 8 - 1.
+     * checkloop:
+     *     LDA $0780,X
+     *     CMP #$FF
+     *     BNE end
+     *     DEX
+     *     BPL checkloop
+     *     LDA #$00
+     *     INX
+     * resetloop:
+     *     STA $0780,X
+     *     INX
+     *     CPX #$30 ; number of puzzles / 8
+     *     BNE resetloop
+     * end:
+     *     JMP $807C ; jump back to where this code ended originally
+     */
+    const puzzlesSizeFix = [
+      0xad, 0xfe, 0x07, 0xc9, 0x5a, 
+      0xd0, 0x0a, 0xad, 0xff, 0x07, 
+      0xc9, 0x5a, 0xd0, 0x03, 0x4c, 
+      0x25, 0xf0, 0xa2, 0x00, 0xa9, 
+      0xff, 0x9d, 0x80, 0x07, 0xe8, 
+      0xe0, 0x7e, 0xd0, 0xf8, 0xa9, 
+      0x5a, 0x8d, 0xfe, 0x07, 0x8d, 
+      0xff, 0x07, 0xa2, (numberOfPuzzles / 8) - 1, 
+      0xbd, 0x80, 0x07, 0xc9, 0xff, 
+      0xd0, 0x0e, 0xca, 0x10, 0xf6, 
+      0xa9, 0x00, 0xe8, 0x9d, 0x80, 
+      0x07, 0xe8, 0xe0, (numberOfPuzzles / 8), 
+      0xd0, 0xf8, 0x4c, 0x7c, 0x80
+    ];
+
+    if(!environment.production) {
+      let bytes = contents.slice(
+        0x17010, 
+        0x17010 + puzzlesSizeFix.length);
+      
+      console.log(
+        'Location for Custom Game Code:', 
+        Array.from(bytes));
+    }
+
+    contents.set(puzzlesSizeFix,0x17010);
+
+    if(!environment.production) {
+      let bytes = contents.slice(
+        0x17010, 
+        0x17010 + puzzlesSizeFix.length);
+      
+      console.log(
+        'Replaced Custom Game Code:', 
+        Array.from(bytes));
+    }
+
+    /*
+     * At the location in our ROM 0x10075, 
+     * the game begins a series of commands 
+     * to check if the puzzles have been used 
+     * and reset them if they have so the patch 
+     * will ignore all of that code and instead 
+     * have an instruction to jump to the location 
+     * where the new code can be found
+     */
+    if(!environment.production) {
+      let bytes = contents.slice(
+        0x010075, 
+        0x010078);
+      
+      console.log(
+        'Original jump instructions:', 
+        Array.from(bytes));
+    }
+
+    const replacementCode = [0x4c, 0x00, 0xf0];
+    contents.set(replacementCode,0x010075);
+
+    if(!environment.production) {
+      let bytes = contents.slice(
+        0x010075, 
+        0x010078);
+      
+      console.log(
+        'Replaced jump instructions:', 
+        Array.from(bytes));
+    }
+
+  }
+
   /**
    * Replace a previously read in rom file's contents
    * with the data represented by a particular loaded config.
@@ -403,6 +530,12 @@ export class RomService {
       const puzzles = config.games[id].puzzles;
       const encodedGame = this.encoder.encodeGame(game, categories, puzzles, constants);
       
+      const totalPuzzles = Object.keys(puzzles).reduce((totalPuzzles,catId)=>{
+        return totalPuzzles + puzzles[catId].length;
+      },0);
+
+      console.log('totalPuzzles',totalPuzzles);
+
       console.log('encoded game:\n',encodedGame);
 
       this.replacePuzzleSolutions(contents, encodedGame.categories, constants);
@@ -414,6 +547,8 @@ export class RomService {
 
       this.replaceTitleScreenScrollingText(contents, encodedGame.intro, constants);
       this.replaceTitleScreenIntroText(contents, encodedGame.intro, constants);
+
+      this.addCustomGameSizeCode(contents, encodedGame, constants);
 
       this.writeBlob(contents);
     });
