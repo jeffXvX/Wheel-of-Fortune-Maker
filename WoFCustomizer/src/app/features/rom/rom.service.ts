@@ -455,7 +455,7 @@ export class RomService {
       0xa9, 0x00, 0xe8, 0x9d, 0x80, 
       0x07, 0xe8, 0xe0, (numberOfPuzzles / 8), 
       0xd0, 0xf8, 0x4c, 0x7c, 0x80
-    ]
+    ];
 
     if(!environment.production) {
       let bytes = contents.slice(
@@ -463,7 +463,19 @@ export class RomService {
         0x17010 + puzzlesSizeFix.length);
       
       console.log(
-        'Custom Game Code:', 
+        'Location for Custom Game Code:', 
+        Array.from(bytes));
+    }
+
+    contents.set(puzzlesSizeFix,0x17010);
+
+    if(!environment.production) {
+      let bytes = contents.slice(
+        0x17010, 
+        0x17010 + puzzlesSizeFix.length);
+      
+      console.log(
+        'Replaced Custom Game Code:', 
         Array.from(bytes));
     }
 
@@ -482,15 +494,22 @@ export class RomService {
         0x010078);
       
       console.log(
-        'Old stuff?:', 
+        'Original jump instructions:', 
         Array.from(bytes));
-
-      const replacementCode = [0x4c, 0x00, 0xf0];
     }
 
-    
+    const replacementCode = [0x4c, 0x00, 0xf0];
+    contents.set(replacementCode,0x010075);
 
-    
+    if(!environment.production) {
+      let bytes = contents.slice(
+        0x010075, 
+        0x010078);
+      
+      console.log(
+        'Replaced jump instructions:', 
+        Array.from(bytes));
+    }
 
   }
 
@@ -511,6 +530,12 @@ export class RomService {
       const puzzles = config.games[id].puzzles;
       const encodedGame = this.encoder.encodeGame(game, categories, puzzles, constants);
       
+      const totalPuzzles = Object.keys(puzzles).reduce((totalPuzzles,catId)=>{
+        return totalPuzzles + puzzles[catId].length;
+      },0);
+
+      console.log('totalPuzzles',totalPuzzles);
+
       console.log('encoded game:\n',encodedGame);
 
       this.replacePuzzleSolutions(contents, encodedGame.categories, constants);
